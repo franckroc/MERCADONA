@@ -1,0 +1,74 @@
+<!-- Liste des produits avec filtre -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Articles list</title>
+    <link href="{{ url_for('public', path='css/styles_listeProduits.css') }}" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav>
+            <button id="retourHome">Retour à l'accueil</button>
+        </nav>
+    </header>
+    
+    <h1>Liste des articles</h1><br />
+
+    <form id="myform">
+        <label for="sort_by">Filtrer les articles par catégorie:</label>
+        <select id="sort_by" name="sort_by">
+            <option value=" "></option>
+            <option value="libelle">-- tous --</option>
+            <option value="informatique">Informatique</option>
+            <option value="papeterie">Papeterie</option>
+            <option value="vetement">Vêtement</option>
+            <option value="maison">Maison</option>
+            <option value="jardin">Jardin</option>
+        </select> 
+        <strong><span>>>> CATEGORIE:
+        {% if filtre == 'informatique' %} 
+            Informatique
+        {% elif filtre == 'papeterie' %}
+            Papeterie
+        {% elif filtre == 'vetement' %}
+            Vêtement
+        {% elif filtre == 'maison' %}
+            Maison
+        {% elif filtre == 'jardin' %}
+            Jardin
+        {% else %}
+            Tous les articles
+        {% endif %}
+        </span></strong> 
+    </form><br/>
+
+    <section class="prod">
+    {% for produit in produits %}
+        <br />
+        <li class="title"> {{ produit.libelle}} </li>
+        <p> {{ produit.description }} - <strong>{{ produit.prix }} euros </strong></p>
+        <br />
+        <p> catégorie: {{ produit.categorie }} </p> <br />
+
+        {% if produit.en_promo == True %}
+            <section class="promotion"> 
+            <p ><strong> Produit en promotion ! </strong></p>
+            <p>Remise: <strong>{{ produit.promotion.remise }} %</strong> 
+            du <span><strong>{{ produit.promotion.date_deb }}</strong></span> au 
+            <span><strong>{{ produit.promotion.date_fin }}</strong></span></p>
+            <br />  
+            <p> Prix soldé: <strong>{{ (produit.prix|float - (produit.prix|float * produit.promotion.remise/100))|round(2) }} euros</strong></p>
+            </section>
+        {% else %}
+            <p><strong>Produit non soldé.</strong></p>
+        {% endif %}
+        <br />
+        <img src="/{{ produit.url_img }}" alt="{{ produit.description }}" width="200px", height="180px" /> <br />
+    {% endfor %}
+    </section>
+
+<script src="{{ url_for('public', path='js/ret.js') }} "></script>
+<script src="{{ url_for('public', path='js/filter.js') }}"></script>
+</body>
+</html>

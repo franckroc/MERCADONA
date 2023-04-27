@@ -1,0 +1,187 @@
+/* RESET CSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* TYPOGRAPHIE */
+body {
+    font-family: sans-serif;
+    font-size: 16px;
+}
+
+h1, h2 {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* COULEURS */
+:root {
+    --couleur-bleu: #0066cc;
+    --couleur-jaune: #ffcc00;
+}
+
+body {
+    background-color: #f5f5f5;
+}
+
+header {
+    background-color: var(--couleur-bleu);
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+
+nav ul {
+    display: flex;
+    gap: 20px;
+}
+
+nav a {
+    color: #fff;
+    text-decoration: none;
+    transition: opacity 0.3s;
+}
+
+nav a:hover {
+    opacity: 0.8;
+}
+
+.buttons {
+    display: flex;
+    gap: 20px;
+}
+
+#adminBtn {
+    background-color: var(--couleur-jaune);
+    color: #000;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: opacity 0.3s;
+}
+
+#adminBtn:hover {
+    opacity: 0.8;
+}
+
+#catalogueBtn {
+    background-color: #fff;
+    color: var(--couleur-bleu);
+    border: 2px solid var(--couleur-bleu);
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: opacity 0.3s;
+}
+
+#catalogueBtn:hover {
+    opacity: 0.8;
+}
+
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px;
+}
+
+.presentation {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.produits {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.produit {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.produit img {
+    width: 15%;
+    height: 100px;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.produit h3 {
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+.produit p {
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+#QSN {
+    font-style: italic;
+    padding: 3rem;
+    font-size: 20px;
+}
+#QSN p {
+    margin: 10px;
+}
+
+.contact-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin: 50px;
+    box-sizing: border-box;
+    vertical-align: top;
+    text-align: left;
+    text-align: justify;
+}
+.adress {
+    margin: 20px;
+}
+
+.ville {
+    color:green;
+    font-weight: bold;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 10px;
+    width: 250px;
+    height: 350px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
+  }
+  .card-image {
+    width: 200px;
+    height: 200px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+  .card-description {
+    text-align: center;
+  }
+  .images-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+

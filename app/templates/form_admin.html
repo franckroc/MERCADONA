@@ -1,0 +1,35 @@
+<!-- formulaire de connexion ADMIN -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>admin</title>
+    <link href="{{ url_for('public', path='css/styles_form.css') }}" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav>
+            <button id="retourHome">Retour à l'accueil</button>
+        </nav>
+    </header>
+    
+    <div class="login-form-container">
+      <form class="login-form" action="/dataForm/" method="post">
+        <h2>Connexion Administrateur</h2>
+        <div class="form-group">
+          <label for="email">Adresse e-mail:</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Mot de passe:</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit">Se connecter</button>
+      </form>
+    </div>
+      
+<script src="{{ url_for('public', path='js/ret.js') }} "></script>
+
+</body>
+</html>
+  

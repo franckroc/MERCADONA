@@ -1,0 +1,121 @@
+/* Style général */
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+  }
+  
+  body {
+	font-family: sans-serif;
+	background-color: #acd6e0;
+  }
+  
+  /* Header */
+  header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: #106fce;
+	padding: 20px;
+	color: rgb(248, 244, 244);
+  }
+  
+  header h1 {
+	font-size: 24px;
+  }
+  
+  .logout {
+    margin-left: auto;
+  }
+
+  /* Aside */
+  aside {
+	width: 12%;
+	background-color: rgb(216, 211, 211);
+	border: 1px solid #ccc;
+	margin: 15px 0;
+	padding: 10px;
+  }
+  
+  aside h2 {
+	font-size: 18px;
+	margin-bottom: 10px;
+  }
+  
+  aside ul {
+	list-style: none;
+	margin-bottom: 20px;
+  }
+  
+  aside ul li {
+	margin-bottom: 5px;
+  }
+  
+  aside ul li a {
+	display: block;
+	padding: 10px;
+	color: #1768a5;
+	text-decoration: none;
+	font-weight: bold;
+  }
+  
+  aside ul li a:hover {
+	background-color:#08c;
+	color: white;
+  }
+  
+  /* Form */
+  .create-form {
+	background-color: rgb(255, 255, 255);
+	border: 1px solid #ccc;
+	margin: 10px auto;
+	padding: 10px;
+	width: 70%;
+	max-width: 600px;
+	position: fixed;
+	top: 20%;
+	left: 35%;
+  }
+
+  .create-form h2 {
+	text-align: center;
+  }
+  
+  .create-form label {
+	display: flex;
+	margin-bottom: 10px;
+  }
+  
+  .create-form input,
+  .create-form select,
+  .create-form textarea {
+	display: block;
+	width: 100%;
+	margin-bottom: 15px;
+	padding: 10px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+  }
+
+  .create-form input[type="radio"] {
+	float: right;
+  }
+  
+  .create-form p {
+	margin-top: 10px;
+  }
+
+  button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #3498db;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button[type="submit"]:hover {
+    background-color: #2980b9;
+  }

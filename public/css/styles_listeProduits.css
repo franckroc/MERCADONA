@@ -1,0 +1,31 @@
+/* RESET CSS */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+/* corps produits */
+.prod {
+  margin-left: 50px;
+}
+/* header */
+header {
+  background-color: #0066cc;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+}
+/* titre produit */
+.title {
+    font-size: 20px;
+    color: coral;
+    text-decoration: underline;
+    list-style-type: square;
+  }
+/* produit en promotion */
+.promotion {
+  font-weight: bold;
+  color: red;
+}
