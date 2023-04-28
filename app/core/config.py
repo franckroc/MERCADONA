@@ -5,10 +5,10 @@ from fastapi.templating import Jinja2Templates
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 db_password = os.environ.get('DB_PASSWORD')
-user: str = 'postgres'
-host: str = 'localhost'
+user: str = 'franck-r_bddmerca'
+host: str = 'postgresql-franck-r.alwaysdata.net'
 port: str = '5432'
-dbname: str = 'MERCADONA'
+dbname: str = 'franck-r_mercadona'
 
 ############ init ORM tortoise connexion BDD et templates jinja2 ##############
 

@@ -181,8 +181,8 @@ async def createProd(label: str = Form(...), description: str = Form(...),
     path = f"public/img/{images[0]}"
 
     #composition de l'article et enregistrement dans la table Produit
-    article = Produit(libelle=label, description=description, prix=price, url_img=path, en_promo=promo,
-                      categorie=categorie)
+    article = Produit(libelle=label.capitalize(), description=description, prix=price, 
+                      url_img=path, en_promo=promo, categorie=categorie.lower())
     await article.save()
 
     return {"message":f"Le produit ID: {article.id} est crée"}
