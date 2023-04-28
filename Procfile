@@ -1,0 +1,1 @@
+starter: uvicorn start:app
