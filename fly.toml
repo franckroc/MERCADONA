@@ -18,3 +18,5 @@ primary_region = "cdg"
     interval = "15s"
     timeout = "2s"
     grace_period = "5s"
+
+[build]
