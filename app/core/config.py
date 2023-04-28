@@ -5,6 +5,7 @@ from fastapi.templating import Jinja2Templates
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 db_password = os.environ.get('DB_PASSWORD')
+#db_password = DB_PASSWORD
 user: str = 'franck-r_bddmerca'
 host: str = 'postgresql-franck-r.alwaysdata.net'
 port: str = '5432'

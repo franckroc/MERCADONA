@@ -200,6 +200,7 @@ async def createPromo(id_produit: int = Form(...), dateD: str = Form(...),
     # mise a jour du produit sélectionné avec la promotion
     article = await Produit.get(id=id_produit)
     article.promotion_id = promotion.id
+    article.en_promo = True
     await article.save()
 
     return {"message" : f"La promotion ID: {promotion.id} est crée"}
