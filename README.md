@@ -7,6 +7,7 @@ Back Office création produit et création promotion /
 Base de données postgres sur alwaysdata /
 
 Point d'entrée appli FastApi: start.py sur serveur uvicorn
+
  --> uvicorn start:app
 
 Catalogue: accès public /
