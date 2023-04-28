@@ -10,4 +10,7 @@ Point d'entrée appli FastApi: start.py sur serveur uvicorn
  --> uvicorn start:app
 
 Catalogue: accès public /
+ Endpoints: "/" for home pasge
+            "/articles"  for catalog
+
 Back Office: accès privés
