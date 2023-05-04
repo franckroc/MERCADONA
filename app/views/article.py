@@ -12,9 +12,6 @@ from app.sqli import sql_i_injection
 from time import sleep 
 import jwt  
 
-# librairie pour affichage MessageBox
-import ctypes
-
 ########################################
 ########### admin data #################
 
@@ -52,11 +49,6 @@ def validToken():
     if checkToken(adminLogin.admin_token) != True:
         raise HTTPException(status_code=405, detail="Accès non autorisé")
     
-##### fonction générateur Message box ##### 
-   
-def Mbox(title: str , msg: str, style:int = 0):
-    return ctypes.windll.user32.MessageBoxW(1, msg, title, style)
-
 ############### type hints ################
 
 valid: bool
@@ -120,12 +112,8 @@ async def login(email: str = Form(...), password: str = Form(...)):
             # requete BDD pour récupérér data(s) admin(s)
             users = await Admin.all()
         else:
-            Mbox("Inection SQL","Un code malveillant a été détecté")
-            sleep(5)
             return RedirectResponse(url="/", status_code=status.HTTP_205_RESET_CONTENT)
     else:
-        Mbox("Inection SQL","Un code malveillant a été détecté")
-        sleep(5)
         return RedirectResponse(url="/", status_code=status.HTTP_205_RESET_CONTENT)
 
     # recherche parmi les data(s) admin(s)
@@ -147,7 +135,6 @@ async def login(email: str = Form(...), password: str = Form(...)):
             return RedirectResponse(url='/BOffice/', status_code=status.HTTP_303_SEE_OTHER)
         else:
             # sinon retour accueil
-            Mbox("Utilisateur non reconnu","Vos identifiants ne sont pas validés !") 
             return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
 
 ########################################################
