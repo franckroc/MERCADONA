@@ -4,21 +4,18 @@ from fastapi.responses import RedirectResponse
 from app.models.article import Produit, Admin, Promotion
 from app.core.config import templates
 
-# importe fonction de vérification mail et password
+# importe fonction de vérification mail et password en bdd
 from app.verify import verifyPasswordMail
 # importe fonction prévention SQLi
 from app.sqli import sql_i_injection
 
-from time import sleep 
 import jwt  
 
-########################################
-########### admin data #################
+##############################################
+########### class admin data #################
 
 class adminLogin:
     admin_token: str = None
-
-################## START ###############
 
 homePage = APIRouter()  # route public
 articlesViews = APIRouter()  # route public
@@ -72,10 +69,11 @@ async def root(request: Request):
 @articlesViews.get("/articles", tags=["articles"])
 async def articles_list(request: Request, filter: str = "libelle"):
     
-    # afficher les produits selon le filtre sélectionné
+    # afficher les produits selon le filtre sélectionné - par défaut filter="libelle"
     match filter:
 
         case "libelle":
+            # requetes avec jointure sur tables produit et promotion
             produits = await Produit.all().prefetch_related('promotion').order_by(filter)
         case _:
             produits = await Produit.filter(categorie=filter).prefetch_related('promotion')
@@ -104,19 +102,20 @@ async def admin(request: Request):
 @adminConnect.post("/dataForm/", tags=["admin"]) 
 async def login(email: str = Form(...), password: str = Form(...)):
 
-    # verif SQLi 
+    # verifiction SQLi 
     nosqli = sql_i_injection(email)
     if nosqli:
         nosqli = sql_i_injection(password)
         if nosqli:
-            # requete BDD pour récupérér data(s) admin(s)
+            # si pas d'injections repérées requete BDD pour récupérér les données admin
             users = await Admin.all()
         else:
+            # sinon redirection page d'accueil
             return RedirectResponse(url="/", status_code=status.HTTP_205_RESET_CONTENT)
     else:
         return RedirectResponse(url="/", status_code=status.HTTP_205_RESET_CONTENT)
 
-    # recherche parmi les data(s) admin(s)
+    # recherche parmi les données admin
     for user in users:   
         # verif concordances email et password du formulaire / email et password haché salé en BDD
         valid = verifyPasswordMail(email, password, user.mail, user.password)
@@ -128,10 +127,10 @@ async def login(email: str = Form(...), password: str = Form(...)):
             payload= {f"{email}":f"{password}"}
             token = generateToken(payload)
 
-            # safe data admin login
+            # sauvegarde du token dans la classe adminLogin
             adminLogin.admin_token = token
 
-            # redirection vers route protégée
+            # redirection vers route protégée /BOffice
             return RedirectResponse(url='/BOffice/', status_code=status.HTTP_303_SEE_OTHER)
         else:
             # sinon retour accueil
@@ -140,31 +139,33 @@ async def login(email: str = Form(...), password: str = Form(...)):
 ########################################################
 ################# routes BackOffice ####################
 
-#############  route GET page d'accueil  ###############
+#############  route GET page d'accueil du Back Office ###############
 
 @backOffice.get("/BOffice/", tags=["backOffice"])
 async def adminBackOffice(request: Request):
 
+    #vérification du token 
     validToken()
 
     return templates.TemplateResponse( "Boffice.html", { "request": request})
 
-########### route post createProd ######################
+########### route post createProd (création produit) ######################
 
 @backOffice.post("/createProd/", tags=["backOffice"])
 async def createProd(label: str = Form(...), description: str = Form(...),
                      price: float = Form(...), promo: str = Form(...), 
                      images: list = Form(...), categorie: str = Form(...)):
     
+    # vérification token
     validToken()
 
-    # transforme valeur bouton radio en booléen
+    # transforme la valeur du bouton radio en_promo en booléen
     if promo == "on":
         promo = True
     else:
         promo = False
 
-    # recompose path image
+    # recompose path image pour enregistrement en base de données
     path = f"public/img/{images[0]}"
 
     #composition de l'article et enregistrement dans la table Produit
@@ -178,6 +179,7 @@ async def createProd(label: str = Form(...), description: str = Form(...),
 async def createPromo(id_produit: int = Form(...), dateD: str = Form(...),
                       dateF: str = Form(...), remise: int = Form(...)):
 
+    # vérification token
     validToken()
 
     # composition de la promotion et enregistrement
