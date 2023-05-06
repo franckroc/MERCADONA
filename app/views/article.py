@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, HTTPException, status, Form, File, UploadFile
+from fastapi import APIRouter, Request, HTTPException, status, Form, UploadFile, File
 from fastapi.responses import RedirectResponse
 
 from app.models.article import Produit, Admin, Promotion
@@ -66,7 +66,7 @@ async def root(request: Request):
 ######################################################
 ############### route GET /articles ##################
 
-@articlesViews.get("/articles", tags=["articles"])
+@articlesViews.get("/articles/", tags=["articles"])
 async def articles_list(request: Request, filter: str = "libelle"):
     
     # afficher les produits selon le filtre sélectionné - par défaut filter="libelle"
@@ -154,7 +154,7 @@ async def adminBackOffice(request: Request):
 @backOffice.post("/createProd/", tags=["backOffice"])
 async def createProd(request: Request, label: str = Form(...), description: str = Form(...),
                      price: float = Form(...), promo: str = Form(...), 
-                     images: UploadFile = UploadFile(...), categorie: str = Form(...)): #list = Form(...)
+                     images: UploadFile = File(...) , categorie: str = Form(...)):
     
     # vérification token
     validToken()
@@ -166,7 +166,9 @@ async def createProd(request: Request, label: str = Form(...), description: str 
         promo = False
 
     # téléversement du fichier image (chemin absolu) dans le dossier de destination  
-    file_path = f"C:/Users/kiki/Desktop/mercadona/public/img/{images.filename}"
+    file_path = f"C:/Users/kiki/Desktop/mercadona/public/img/{images.filename}" 
+    print("Path: ", file_path)
+
     with open(file_path, "wb") as buffer:
         buffer.write(await images.read())
 
@@ -177,6 +179,7 @@ async def createProd(request: Request, label: str = Form(...), description: str 
     #composition de l'article et enregistrement dans la table Produit
     article = Produit(libelle=label.capitalize(), description=description, prix=price, 
                       url_img=path, en_promo=promo, categorie=categorie.lower())
+    
     await article.save()
 
     return templates.TemplateResponse(
