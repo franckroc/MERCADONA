@@ -20,7 +20,6 @@ register_tortoise(
 )
 
 #### inclure APIRouters catalogue public / backoffice privé
-
 app.include_router(homePage)
 app.include_router(articlesViews)
 app.include_router(backOffice)    

@@ -42,8 +42,6 @@ def checkToken(token: str) -> bool:
             jwt.InvalidTokenError, jwt.InvalidAlgorithmError):
         return False
 
-#### fonction de validation du token ######
-
 def validToken():
     if checkToken(adminLogin.admin_token) != True:
         raise HTTPException(status_code=405, detail="Accès non autorisé")
@@ -181,7 +179,6 @@ async def createProd(request: Request, label: str = Form(...), description: str 
                       url_img=path, en_promo=promo, categorie=categorie.lower())
     await article.save()
 
-    #return {"message":f"Le produit ID: {article.id} est crée"}
     return templates.TemplateResponse(
         "article_create.html",
         {

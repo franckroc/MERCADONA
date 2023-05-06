@@ -17,7 +17,6 @@ class Settings(BaseSettings):
     APP_NAME: str = "mercadona"
     APP_VERSION: str = "1.0.0"
     POSTGRESQL_URL: str = f"postgres://{user}:{db_password}@{host}:{port}/{dbname}"
-
     TORTOISE_MODELS = [
         "app.models.article"
     ]
