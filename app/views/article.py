@@ -1,26 +1,32 @@
-from fastapi import APIRouter, Request, HTTPException, status, Form
+from fastapi import APIRouter, Request, HTTPException, status, Form, File, UploadFile
 from fastapi.responses import RedirectResponse
 
 from app.models.article import Produit, Admin, Promotion
 from app.core.config import templates
 
-# importe fonction de vérification mail et password en bdd
+# importe fonction custom de vérification mail et password en bdd
 from app.verify import verifyPasswordMail
-# importe fonction prévention SQLi
+
+# importe fonction custom de prévention SQL injection
 from app.sqli import sql_i_injection
 
+#librairie pour générer et vérifier token
 import jwt  
 
-##############################################
-########### class admin data #################
+#librairie pour copier l'image choisie dans le répertoire /public/img de l'appli
+from shutil import move
+import os
+
+#####################################################
+##### class adminLogin pour sauvegarde token ########
 
 class adminLogin:
     admin_token: str = None
 
-homePage = APIRouter()  # route public
+homePage = APIRouter()       # route public
 articlesViews = APIRouter()  # route public
-adminConnect = APIRouter() # route public
-backOffice = APIRouter()   # route privé
+adminConnect = APIRouter()   # route public
+backOffice = APIRouter()     # route privé
 
 ##### fonctions générateur et verif token ####
 
@@ -87,8 +93,8 @@ async def articles_list(request: Request, filter: str = "libelle"):
             "filtre": filter
         })
 
-######################################################
-####### routes /admin formulaire connexion ###########
+###############################################
+####### routes formulaire connexion ###########
 
 #################### route GET #######################
 
@@ -152,9 +158,9 @@ async def adminBackOffice(request: Request):
 ########### route post createProd (création produit) ######################
 
 @backOffice.post("/createProd/", tags=["backOffice"])
-async def createProd(label: str = Form(...), description: str = Form(...),
+async def createProd(request: Request, label: str = Form(...), description: str = Form(...),
                      price: float = Form(...), promo: str = Form(...), 
-                     images: list = Form(...), categorie: str = Form(...)):
+                     images: UploadFile = UploadFile(...), categorie: str = Form(...)): #list = Form(...)
     
     # vérification token
     validToken()
@@ -165,15 +171,35 @@ async def createProd(label: str = Form(...), description: str = Form(...),
     else:
         promo = False
 
-    # recompose path image pour enregistrement en base de données
-    path = f"public/img/{images[0]}"
+    # téléversement du fichier image (chemin absolu) dans le dossier de destination  
+    file_path = f"C:/Users/kiki/Desktop/mercadona/public/img/{images.filename}"
+    with open(file_path, "wb") as buffer:
+        buffer.write(await images.read())
+
+    # récomposition chemin relatif de l'image pour BDD
+    path = f"public/img/{images.filename}"
+    print("Path: ",path)
 
     #composition de l'article et enregistrement dans la table Produit
     article = Produit(libelle=label.capitalize(), description=description, prix=price, 
                       url_img=path, en_promo=promo, categorie=categorie.lower())
     await article.save()
 
-    return {"message":f"Le produit ID: {article.id} est crée"}
+    #return {"message":f"Le produit ID: {article.id} est crée"}
+    return templates.TemplateResponse(
+        "article_create.html",
+        {
+            "request": request,
+            "id": article.id,
+            "libelle": article.libelle,
+            "description": article.description,
+            "prix": article.prix,
+            "categorie": article.categorie,
+            "promotion": article.en_promo
+        })
+
+####################################################################################
+######### route post createPromo (création promo et mise à jour produit) ###########
 
 @backOffice.post("/createPromo/", tags=["backOffice"])
 async def createPromo(id_produit: int = Form(...), dateD: str = Form(...),

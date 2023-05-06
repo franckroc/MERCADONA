@@ -5,6 +5,7 @@ from tortoise.contrib.fastapi import register_tortoise
 from app.views.article import articlesViews, backOffice, homePage, adminConnect
 from app.core.config import settings
 
+# création instance fastAPI
 app = FastAPI(title="Mercadona 1.0")
 
 # création de la route public vers fichiers statiques CSS/JS/IMG/...
@@ -18,7 +19,7 @@ register_tortoise(
     add_exception_handlers=True,
 )
 
-#### inclure APIRouters catalogue public / backoffice privé / administrateur privé
+#### inclure APIRouters catalogue public / backoffice privé
 
 app.include_router(homePage)
 app.include_router(articlesViews)

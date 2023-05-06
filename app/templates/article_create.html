@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Creation produit</title>
+    <link href="{{ url_for('public', path='css/styles_articleCreate.css') }}" rel="stylesheet">
+</head>
+<body>
+
+    <header>
+        <nav>
+            <button id="retourBO">Retour au back Office</button>
+        </nav>
+    </header>
+    
+    <br />
+    <p> ID du produit crée: <strong>{{ id }}</strong> </p>
+    <p> Libellé: <strong>{{ libelle }}</strong> </p>
+    <p> Description: <strong>{{ description }}</strong></p>
+    <p> Prix: <strong>{{ prix }}</strong></p>
+    <p> Catégorie: <strong>{{ categorie}}</strong></p>
+    {% if promotion == True %}
+    <p>En promotion: <strong>Oui</strong></p>
+    {% else %}
+    <p>En promotion: <strong>Non</strong></p>
+    {% endif %}
+
+<script src="{{ url_for('public', path='js/retBO.js') }} "></script>
+</body>
+</html>

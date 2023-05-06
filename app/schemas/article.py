@@ -1,11 +1,12 @@
 from pydantic import BaseModel
+from fastapi import UploadFile
 
 class ProduitSchema(BaseModel):
     id: int
     libelle: str
     description: str
     prix: float
-    url_img: str
+    url_img: UploadFile
     en_promo: bool
     promotion_id: int
     categorie: str
