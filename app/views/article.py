@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, HTTPException, status, Form, UploadFile,
 from fastapi.responses import RedirectResponse
 
 from app.models.article import Produit, Admin, Promotion
-from app.core.config import templates
+from app.core.myconfig import templates
 
 # importe fonction custom de vérification mail et password en bdd
 from app.verify import verifyPasswordMail

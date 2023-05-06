@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from tortoise.contrib.fastapi import register_tortoise
 from app.views.article import articlesViews, backOffice, homePage, adminConnect
-from app.core.config import settings
+from app.core.myconfig import settings
 
 # création instance fastAPI
 app = FastAPI(title="Mercadona 1.0")

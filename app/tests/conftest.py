@@ -6,8 +6,8 @@ import pytest
 from fastapi.testclient import TestClient
 from tortoise.contrib.test import finalizer, initializer
 
-from app.core.config import settings
-from app.start import app
+from app.core.myconfig import settings
+from start import app
 
 @pytest.fixture(scope="module")
 def event_loop() -> Iterator[asyncio.AbstractEventLoop]:
