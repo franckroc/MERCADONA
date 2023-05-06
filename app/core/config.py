@@ -1,11 +1,17 @@
 from pydantic import BaseSettings
 import os
 from fastapi.templating import Jinja2Templates
+from decouple import Config
+
+config = Config()
+
+password = config("DB_PASSWORD")
+user = config("DB_USER")
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-db_password =  os.environ.get('DB_PASSWORD')
-user: str = os.environ.get('DB_USER')
+db_password =  password
+user: str = user
 host: str = 'postgresql-franck-r.alwaysdata.net'
 port: str = '5432'
 dbname: str = 'franck-r_mercadona'
