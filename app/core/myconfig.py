@@ -3,6 +3,7 @@ import os
 from fastapi.templating import Jinja2Templates
 from decouple import config
 
+#chargement des variables locales pour connexion BDD
 db_password: str = config("DB_PASSWORD")
 user: str = config("DB_USER")
 
