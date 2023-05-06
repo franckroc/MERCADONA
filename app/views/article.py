@@ -13,10 +13,6 @@ from app.sqli import sql_i_injection
 #librairie pour générer et vérifier token
 import jwt  
 
-#librairie pour copier l'image choisie dans le répertoire /public/img de l'appli
-from shutil import move
-import os
-
 #####################################################
 ##### class adminLogin pour sauvegarde token ########
 
