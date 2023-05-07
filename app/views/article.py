@@ -12,6 +12,7 @@ from app.sqli import sql_i_injection
 
 #librairie pour générer et vérifier token
 import jwt  
+from decouple import config
 
 #####################################################
 ##### class adminLogin pour sauvegarde token ########
@@ -26,14 +27,13 @@ backOffice = APIRouter()     # route privé
 
 ##### fonctions générateur et verif token ####
 
+key: str = config("JWT_SECRETKEY")
+
 def generateToken(payload: dict) ->str:
-    key = "secret"
     encoded = jwt.encode(payload, key, algorithm="HS256")
     return encoded
 
 def checkToken(token: str) -> bool:
-    key = "secret"
-
     try:
         jwt.decode(token, key, algorithms="HS256")
         return True
