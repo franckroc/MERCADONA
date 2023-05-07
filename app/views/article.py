@@ -12,6 +12,7 @@ from app.sqli import sql_i_injection
 
 #librairie pour générer et vérifier token
 import jwt  
+
 from decouple import config
 
 #####################################################
@@ -19,6 +20,7 @@ from decouple import config
 
 class adminLogin:
     admin_token: str = None
+    
 #####################################################
 
 homePage = APIRouter()       # route public
@@ -105,9 +107,9 @@ async def login(email: str = Form(...), password: str = Form(...)):
 
     # verifiction SQLi 
     nosqli = sql_i_injection(email)
-    if nosqli:
+    if nosqli == False:
         nosqli = sql_i_injection(password)
-        if nosqli:
+        if nosqli == False:
             # si pas d'injections repérées requete BDD pour récupérér les données admin
             users = await Admin.all()
         else:
