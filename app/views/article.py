@@ -19,13 +19,14 @@ from decouple import config
 
 class adminLogin:
     admin_token: str = None
+#####################################################
 
 homePage = APIRouter()       # route public
 articlesViews = APIRouter()  # route public
 adminConnect = APIRouter()   # route public
 backOffice = APIRouter()     # route privé
 
-##### fonctions générateur et verif token ####
+######## fonctions générateur et verif token ########
 
 key: str = config("JWT_SECRETKEY")
 
@@ -46,7 +47,7 @@ def validToken():
     if checkToken(adminLogin.admin_token) != True:
         raise HTTPException(status_code=405, detail="Accès non autorisé")
     
-############### type hints ################
+#################### type hints ####################
 
 valid: bool
 email: str
@@ -167,14 +168,12 @@ async def createProd(request: Request, label: str = Form(...), description: str 
 
     # téléversement du fichier image (chemin absolu) dans le dossier de destination  
     file_path = f"C:/Users/kiki/Desktop/mercadona/public/img/{images.filename}" 
-    print("Path: ", file_path)
 
     with open(file_path, "wb") as buffer:
         buffer.write(await images.read())
 
     # récomposition chemin relatif de l'image pour BDD
     path = f"public/img/{images.filename}"
-    print("Path: ",path)
 
     #composition de l'article et enregistrement dans la table Produit
     article = Produit(libelle=label.capitalize(), description=description, prix=price, 
@@ -214,4 +213,4 @@ async def createPromo(id_produit: int = Form(...), dateD: str = Form(...),
     article.en_promo = True
     await article.save()
 
-    return {"message" : f"La promotion ID: {promotion.id} est crée"}
+    return {"message" : f"La promotion ID: {promotion.id} est crée pour l'article: {article.id}"}
