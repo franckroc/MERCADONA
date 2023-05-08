@@ -1,6 +1,6 @@
-from sqli import sql_i_injection
+from app.sqli import sql_i_injection
 
-def sql_i_injection_test():
+def test_sql_i_injection():
     
     print("Test sqli")
     parameter = ["blabla' --",
@@ -9,13 +9,10 @@ def sql_i_injection_test():
                  "blabla' OR EXISTS ( SELECT * FROM users WHERE login='alice' AND LENGTH(pass)=5) --",
                  "blabla' OR EXISTS ( SELECT * FROM users WHERE login='alice' AND pass LIKE '%j%' ) --",
                  "blabla'; DROP TABLE users --",
-                 "blabla' AND 1=0 UNION SELECT login, pass, id FROM users --",
-                 123]
+                 "blabla' AND 1=0 UNION SELECT login, pass, id FROM users --"]
     for param in parameter:
         try:
             result = sql_i_injection(param)
             assert result == True
-        except TypeError:
-            print("Erreur de type: ",param)
-
-sql_i_injection_test()
+        finally:
+            pass

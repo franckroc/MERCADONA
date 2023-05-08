@@ -1,6 +1,7 @@
-from article import generateToken, checkToken
+from app.views.article import generateToken, checkToken
+load = {"exemple@exemple.fr":"123"}
 
-def checkToken_invalid_test(load):
+def test_checkToken_invalid():
 
     print("Checking invalid token")
     encoded = generateToken(load)
@@ -8,7 +9,7 @@ def checkToken_invalid_test(load):
     print("Resultat: ", result)
     assert result == False
 
-def checkToken_valid_test(load):
+def test_checkToken_valid():
 
     print("Checking valid token")
     encoded = generateToken(load)
@@ -16,6 +17,3 @@ def checkToken_valid_test(load):
     print("Resultat: ", result)
     assert result == True
 
-payload = {"exemple@exemple.fr":"123"}
-checkToken_valid_test(payload)
-checkToken_invalid_test(payload)

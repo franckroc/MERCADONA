@@ -1,8 +1,8 @@
 
-from verify import verifyPasswordMail
-from hash import hashPasswordEmail
+from app.verify import verifyPasswordMail
+from app.hash import hashPasswordEmail
 
-def verifyPasswordMail_valid_test():
+def test_verifyPasswordMail_valid():
 
     print("Test valid ident")
     false_email= "exemple@exemple.fr"
@@ -12,7 +12,7 @@ def verifyPasswordMail_valid_test():
     print("Resultat valid ident: ",result)
     assert result == True
 
-def verifyPasswordMail_invalidMail_test():
+def test_verifyPasswordMail_invalidMail():
     
     print("Test invalidMail")
     false_email= "exemple@exemple.fr"
@@ -26,7 +26,7 @@ def verifyPasswordMail_invalidMail_test():
     print("Resultat invalid email: ",result)
     assert result == False
 
-def verifyPasswordMail_invalidPassword_test():
+def test_verifyPasswordMail_invalidPassword():
     
     print("Test invalidPassword")
     false_email= "exemple@exemple.fr"
@@ -39,7 +39,3 @@ def verifyPasswordMail_invalidPassword_test():
     result = verifyPasswordMail(false_email, false_password, hashed_email, hashed_password)
     print("Resultat invalid password: ",result)
     assert result == False
-
-verifyPasswordMail_valid_test()
-verifyPasswordMail_invalidMail_test()
-verifyPasswordMail_invalidPassword_test()
