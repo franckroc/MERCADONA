@@ -7,7 +7,7 @@
     <link href="{{ url_for('public', path='css/styles_listeProduits.css') }}" rel="stylesheet">
 </head>
 <body>
-    <header>
+    <header id="home" >
         <nav>
             <button id="retourHome">Retour à l'accueil</button>
         </nav>
@@ -64,9 +64,15 @@
             <p><strong>Produit non soldé.</strong></p>
         {% endif %}
         <br />
-        <img src="/{{ produit.url_img }}" alt="{{ produit.description }}" width="200px", height="180px" /> <br />
+        <img src="/{{ produit.url_img }}" 
+             alt="{{ produit.description }}" 
+             style="border: 1px solid coral;
+                    width: 200px;
+                    height: 180px;"/>
+        <br />
     {% endfor %}
-    </section>
+    </section> <br />
+    <a href="#home"><strong>Haut de page</strong></a> <br /><br />
 
 <script src="{{ url_for('public', path='js/ret.js') }} "></script>
 <script src="{{ url_for('public', path='js/filter.js') }}"></script>
