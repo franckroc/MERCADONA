@@ -48,9 +48,12 @@ def checkToken(token: str) -> bool:
         return False
 
 def validToken():
+    '''
     if checkToken(adminLogin.admin_token) != True:
         raise HTTPException(status_code=405, detail="MERCADONA - Accès non autorisé")
+    '''
     
+    pass
 #################### type hints ####################
 
 valid: bool
