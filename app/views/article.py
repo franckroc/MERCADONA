@@ -187,8 +187,8 @@ async def createProd(request: Request, label: str = Form(...), description: str 
     else:
         promo = False
 
-    user = getuser()
-    path = f"C:/users/{user}/desktop/mercadona/public/img/{images.filename}"
+    #user = getuser()
+    path = f"C:/users/kiki/desktop/mercadona/public/img/{images.filename}"
     
     # téléversement du fichier image (chemin absolu) dans le dossier de destination local
     with open(path, "wb") as buffer:
