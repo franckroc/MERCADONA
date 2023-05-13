@@ -52,7 +52,7 @@ def validToken():
     if checkToken(adminLogin.admin_token) != True:
         raise HTTPException(status_code=405, detail="MERCADONA - Accès non autorisé")
     '''
-    
+
     pass
 #################### type hints ####################
 
@@ -195,9 +195,10 @@ async def createProd(request: Request, label: str = Form(...), description: str 
     # téléversement du fichier image à partir du bureau utilisateur au bucket s3
     user = getuser()
     path = f"C:/users/kiki/desktop/{images.filename}"
-    with open(f"{path}", "wb") as file:
-        file_contents = file.read()
-    S3.s3_client.put_object(Bucket= S3.bucket_name,Key= images.filename, Body=file_contents)
+
+    #with open(f"{path}", "wb") as file:
+    #    file_contents = file.read()
+    S3.s3_client.upload_file(path, S3.bucket_name, images.filename)
 
      #composition de l'article et enregistrement dans la table Produit
     article = Produit(libelle=label.capitalize(), description=description, prix=price, 
