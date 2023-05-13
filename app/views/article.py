@@ -186,16 +186,15 @@ async def createProd(request: Request, label: str = Form(...), description: str 
         promo = True
     else:
         promo = False
-    '''
-    # téléversement du fichier image (chemin absolu) dans le dossier de destination local
 
-    with open(file_path, "wb") as buffer:
-        buffer.write(await images.read())
-    '''    
-    # téléversement du fichier image à partir du bureau utilisateur au bucket s3
     user = getuser()
-    path = f"C:/users/kiki/desktop/{images.filename}"
-
+    path = f"C:/users/{user}/desktop/mercadona/public/img/{images.filename}"
+    
+    # téléversement du fichier image (chemin absolu) dans le dossier de destination local
+    with open(path, "wb") as buffer:
+        buffer.write(await images.read())
+  
+    # téléversement du fichier image à partir du bureau utilisateur au bucket s3
     #with open(f"{path}", "wb") as file:
     #    file_contents = file.read()
     S3.s3_client.upload_file(path, S3.bucket_name, images.filename)
