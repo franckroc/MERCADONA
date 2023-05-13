@@ -12,9 +12,9 @@ from app.sqli import sql_i_injection
 
 #librairie pour générer et vérifier token
 import jwt  
-
+import os
 from decouple import config
-
+import getpass
 #####################################################
 ##### class adminLogin pour sauvegarde token ########
 
@@ -183,13 +183,16 @@ async def createProd(request: Request, label: str = Form(...), description: str 
         promo = False
     '''
     # téléversement du fichier image (chemin absolu) dans le dossier de destination local
-    file_path = f"C:/Users/kiki/Desktop/mercadona/public/img/{images.filename}" 
 
     with open(file_path, "wb") as buffer:
         buffer.write(await images.read())
     '''    
-    # téléversement du fichier image au buxket s3
-    with open(f"{images.filename}", "rb") as file:
+    # téléversement du fichier image à partir du bureau utilisateur au bucket s3
+    user = getpass.getuser()
+
+    path = f"C:/users/{user}/desktop/{images.filename}"
+    print("chemin absolu: ", path)
+    with open(path, "rb") as file:
         file_contents = file.read()
     S3.s3_client.put_object(Bucket= S3.bucket_name,Key= images.filename, Body=file_contents)
 
