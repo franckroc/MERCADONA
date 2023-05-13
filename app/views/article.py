@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, HTTPException, status, Form, UploadFile,
 from fastapi.responses import RedirectResponse
 
 from app.models.article import Produit, Admin, Promotion
-from app.core.myconfig import templates
+from app.core.myconfig import templates, S3
 
 # importe fonction custom de vérification mail et password en bdd
 from app.verify import verifyPasswordMail
@@ -168,11 +168,14 @@ async def createProd(request: Request, label: str = Form(...), description: str 
     else:
         promo = False
 
-    # téléversement du fichier image (chemin absolu) dans le dossier de destination  
+    # téléversement du fichier image (chemin absolu) dans le dossier de destination local
     file_path = f"C:/Users/kiki/Desktop/mercadona/public/img/{images.filename}" 
 
     with open(file_path, "wb") as buffer:
         buffer.write(await images.read())
+    
+    # téléversement du fichier image au buxket s3
+    S3.s3_client.put_object(Bucket= S3.bucket_name,Key= images.filename)
 
     # récomposition chemin relatif de l'image pour BDD
     path = f"public/img/{images.filename}"

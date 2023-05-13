@@ -2,6 +2,12 @@ from pydantic import BaseSettings
 import os
 from fastapi.templating import Jinja2Templates
 from decouple import config
+import boto3
+
+class S3:
+    # bucket s3 amazon
+    s3_client = boto3.client('s3')
+    bucket_name:str = config("S3_BUCKET_NAME")
 
 #chargement des variables locales pour connexion BDD
 db_password: str = config("DB_PASSWORD")
@@ -12,6 +18,8 @@ port: str = '5432'
 dbname: str = 'franck-r_mercadona'
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
+
+
 
 ############ init ORM tortoise connexion BDD et templates jinja2 ##############
 
