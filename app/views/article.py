@@ -189,7 +189,7 @@ async def createProd(request: Request, label: str = Form(...), description: str 
         buffer.write(await images.read())
     '''    
     # téléversement du fichier image au buxket s3
-    with open(f'{images.filename}', 'rb') as file:
+    with open(f"{images.filename}", "rb") as file:
         file_contents = file.read()
     S3.s3_client.put_object(Bucket= S3.bucket_name,Key= images.filename, Body=file_contents)
 
