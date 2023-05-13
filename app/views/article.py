@@ -177,12 +177,9 @@ async def createProd(request: Request, label: str = Form(...), description: str 
     # téléversement du fichier image au buxket s3
     S3.s3_client.put_object(Bucket= S3.bucket_name,Key= images.filename)
 
-    # récomposition chemin relatif de l'image pour BDD
-    path = f"public/img/{images.filename}"
-
-    #composition de l'article et enregistrement dans la table Produit
+     #composition de l'article et enregistrement dans la table Produit
     article = Produit(libelle=label.capitalize(), description=description, prix=price, 
-                      url_img=path, en_promo=promo, categorie=categorie.lower())
+                      url_img=images.filename, en_promo=promo, categorie=categorie.lower())
     
     await article.save()
 

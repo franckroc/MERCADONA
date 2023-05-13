@@ -64,7 +64,10 @@
             <p><strong>Produit non soldé.</strong></p>
         {% endif %}
         <br />
-        <img src="/{{ produit.url_img }}" 
+
+        <!--  {{ produit.url_img }}   -->
+
+        <img src="https://mercastatic.s3.eu-west-3.amazonaws.com/{{ produit.url_img }}/" 
              alt="{{ produit.description }}" 
              style="border: 1px solid coral;
                     width: 200px;
