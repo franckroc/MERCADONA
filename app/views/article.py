@@ -12,9 +12,11 @@ from app.sqli import sql_i_injection
 
 #librairie pour générer et vérifier token
 import jwt  
-import os
+
 from decouple import config
-import getpass
+# librairie pour récupérer le nom d'utilisateur
+from getpass import getuser
+
 #####################################################
 ##### class adminLogin pour sauvegarde token ########
 
@@ -188,7 +190,7 @@ async def createProd(request: Request, label: str = Form(...), description: str 
         buffer.write(await images.read())
     '''    
     # téléversement du fichier image à partir du bureau utilisateur au bucket s3
-    user = getpass.getuser()
+    user = getuser()
     path = f"C:/users/{user}/desktop/{images.filename}"
     with open(path, "rb") as file:
         file_contents = file.read()
