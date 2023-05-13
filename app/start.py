@@ -8,8 +8,10 @@ from app.core.myconfig import settings
 # création instance fastAPI
 app = FastAPI(title="Mercadona 1.0")
 
-# création de la route public vers fichiers statiques CSS/JS/IMG/...
+# création de la route public vers fichiers statiques CSS/JS/
 app.mount("/public", StaticFiles(directory=settings.STATIC_FILES_DIR), name="public")   
+#  et vers les images du bucket S3
+app.mount("https://mercastatic.s3.eu-west-3.amazonaws.com/", name="S3images")
 
 register_tortoise(
     app,
