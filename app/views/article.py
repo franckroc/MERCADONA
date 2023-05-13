@@ -189,9 +189,7 @@ async def createProd(request: Request, label: str = Form(...), description: str 
     '''    
     # téléversement du fichier image à partir du bureau utilisateur au bucket s3
     user = getpass.getuser()
-
     path = f"C:/users/{user}/desktop/{images.filename}"
-    print("chemin absolu: ", path)
     with open(path, "rb") as file:
         file_contents = file.read()
     S3.s3_client.put_object(Bucket= S3.bucket_name,Key= images.filename, Body=file_contents)
