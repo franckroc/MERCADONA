@@ -167,13 +167,13 @@ async def createProd(request: Request, label: str = Form(...), description: str 
         promo = True
     else:
         promo = False
-
+    '''
     # téléversement du fichier image (chemin absolu) dans le dossier de destination local
     file_path = f"C:/Users/kiki/Desktop/mercadona/public/img/{images.filename}" 
 
     with open(file_path, "wb") as buffer:
         buffer.write(await images.read())
-    
+    '''    
     # téléversement du fichier image au buxket s3
     S3.s3_client.put_object(Bucket= S3.bucket_name,Key= images.filename)
 
