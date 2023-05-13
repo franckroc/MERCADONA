@@ -80,6 +80,8 @@ async def articles_list(request: Request, filter: str = "libelle"):
             produits = await Produit.all().prefetch_related('promotion').order_by(filter)
         case _:
             produits = await Produit.filter(categorie=filter).prefetch_related('promotion')
+        
+    image = get_s3_image_url(S3.bucket_name, produits.url_img)
    
     # les variables produits et filtre sont passées au template
     return templates.TemplateResponse(
@@ -87,8 +89,20 @@ async def articles_list(request: Request, filter: str = "libelle"):
         {
             "request": request,
             "produits": produits,
+            "image": image,
             "filtre": filter
         })
+
+# fonction de récupération de l'url à partir de S3
+def get_s3_image_url(bucket_name, image_key):
+    url = S3.s3_client.generate_presigned_url(
+        ClientMethod='get_object',
+        Params={
+            'Bucket': bucket_name,
+            'Key': image_key
+        }
+    )
+    return url
 
 ###############################################
 ####### routes formulaire connexion ###########
