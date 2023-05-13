@@ -17,16 +17,11 @@
     </header>
     
     <br />
-    <p> ID du produit crée: <strong>{{ id }}</strong> </p>
-    <p> Libellé: <strong>{{ libelle }}</strong> </p>
-    <p> Description: <strong>{{ description }}</strong></p>
-    <p> Prix: <strong>{{ prix }}</strong></p>
-    <p> Catégorie: <strong>{{ categorie}}</strong></p>
-    {% if promotion == True %}
-    <p>En promotion: <strong>Oui</strong></p>
-    {% else %}
-    <p>En promotion: <strong>Non</strong></p>
-    {% endif %}
+    <p> ID de la promotion crée: <strong>{{ id_promo }}</strong> </p>
+    <p> remise: <strong>{{ remise }} %</strong> </p>
+    <p> Date de dénut:: <strong>{{ dateD }}</strong></p>
+    <p> Date de fin: <strong>{{ dateF }}</strong></p>
+    <p> Appliquée au produit (ID): <strong>{{ id_article }}</strong></p>
 
 <script src="{{ url_for('public', path='js/retBO.js') }} "></script>
 </body>

@@ -199,7 +199,7 @@ async def createProd(request: Request, label: str = Form(...), description: str 
 ######### route post createPromo (création promo et mise à jour produit) ###########
 
 @backOffice.post("/createPromo/", tags=["backOffice"])
-async def createPromo(id_produit: int = Form(...), dateD: str = Form(...),
+async def createPromo(request: Request, id_produit: int = Form(...), dateD: str = Form(...),
                       dateF: str = Form(...), remise: int = Form(...)):
 
     # vérification token
@@ -215,4 +215,13 @@ async def createPromo(id_produit: int = Form(...), dateD: str = Form(...),
     article.en_promo = True
     await article.save()
 
-    return {"message" : f"La promotion ID: {promotion.id} est crée pour l'article: {article.id}"}
+    return templates.TemplateResponse(
+        "promotion_create.html",
+        {
+            "request": request,
+            "id_promo": promotion.id,
+            "id_article": article.id,
+            "dateD": promotion.date_deb,
+            "dateF": promotion.date_fin,
+            "remise": promotion.remise
+        })
