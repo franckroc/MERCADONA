@@ -3,10 +3,8 @@ from fastapi.responses import RedirectResponse
 
 from app.models.article import Produit, Admin, Promotion
 from app.core.myconfig import templates, S3
-
 # importe fonction custom de vérification mail et password en bdd
 from app.verify import verifyPasswordMail
-
 # importe fonction custom de prévention SQL injection
 from app.sqli import sql_i_injection
 
@@ -19,7 +17,6 @@ from getpass import getuser
 
 #####################################################
 ##### class adminLogin pour sauvegarde token ########
-
 class adminLogin:
     admin_token: str = None
     
@@ -48,12 +45,9 @@ def checkToken(token: str) -> bool:
         return False
 
 def validToken():
-    '''
     if checkToken(adminLogin.admin_token) != True:
         raise HTTPException(status_code=405, detail="MERCADONA - Accès non autorisé")
-    '''
 
-    pass
 #################### type hints ####################
 
 valid: bool
@@ -86,7 +80,7 @@ async def articles_list(request: Request, filter: str = "libelle"):
         case _:
             produits = await Produit.filter(categorie=filter).prefetch_related('promotion')
         
-    image = "https://mercastatic.s3.eu-west-3.amazonaws.com/"  # get_s3_image_url(S3.bucket_name, produits.url_img)
+    image = "https://mercastatic.s3.eu-west-3.amazonaws.com/" 
    
     # les variables produits et filtre sont passées au template
     return templates.TemplateResponse(
@@ -97,29 +91,18 @@ async def articles_list(request: Request, filter: str = "libelle"):
             "image": image,
             "filtre": filter
         })
-'''
-# fonction de récupération de l'url à partir de S3
-def get_s3_image_url(bucket_name, image_key):
-    url = S3.s3_client.generate_presigned_url(
-        ClientMethod='get_object',
-        Params={
-            'Bucket': bucket_name,
-            'Key': image_key
-        }
-    )
-    return url
-'''
+
 ###############################################
 ####### routes formulaire connexion ###########
 
-#################### route GET #######################
+#################### route GET ################
 
 @adminConnect.get("/admin/", tags=["admin"])
 async def admin(request: Request):
 
     return templates.TemplateResponse("form_admin.html", {"request": request})
 
-#################### route POST #######################
+#################### route POST ###############
 
 @adminConnect.post("/dataForm/", tags=["admin"]) 
 async def login(email: str = Form(...), password: str = Form(...)):
@@ -187,22 +170,21 @@ async def createProd(request: Request, label: str = Form(...), description: str 
     else:
         promo = False
 
-    #user = getuser()
-    path = f"C:/users/kiki/desktop/mercadona/public/img/{images.filename}"
-    
-    # téléversement du fichier image (chemin absolu) dans le dossier de destination local
+    user = getuser()
+    path = f"C:/users/{user}/desktop/mercadona/public/img/{images.filename}"
+
+    '''
+    # téléversement du fichier image dans le dossier de destination local
     with open(path, "wb") as buffer:
         buffer.write(await images.read())
-  
-    # téléversement du fichier image à partir du bureau utilisateur au bucket s3
-    #with open(f"{path}", "wb") as file:
-    #    file_contents = file.read()
+    '''
+    
+    # téléversement du fichier image à partir du répertoire image local au bucket s3
     S3.s3_client.upload_file(path, S3.bucket_name, images.filename)
 
-     #composition de l'article et enregistrement dans la table Produit
+    #composition de l'article et enregistrement dans la table Produit
     article = Produit(libelle=label.capitalize(), description=description, prix=price, 
                       url_img=images.filename, en_promo=promo, categorie=categorie.lower())
-    
     await article.save()
 
     return templates.TemplateResponse(
