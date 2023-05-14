@@ -58,7 +58,7 @@
             du <span><strong>{{ produit.promotion.date_deb }}</strong></span> au 
             <span><strong>{{ produit.promotion.date_fin }}</strong></span></p>
             <br />  
-            <p> Prix soldé: <strong>{{ (produit.prix - (produit.prix * produit.promotion.remise/100))|round(2) }} euros</strong></p>
+            <p> Prix soldé: <strong>{{ (produit.prix - (produit.prix * 10/100))|round(2) }} euros</strong></p>
             </section>
         {% else %}
             <p><strong>Produit non soldé.</strong></p>
