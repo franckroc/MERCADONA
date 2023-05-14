@@ -82,7 +82,7 @@ async def articles_list(request: Request, filter: str = "libelle"):
         
     image = "https://mercastatic.s3.eu-west-3.amazonaws.com/" 
    
-    # les variables produits et filtre sont passées au template
+    # les variables produits, image et filtre sont passées au template
     return templates.TemplateResponse(
         "products_list.html",
         {
@@ -180,7 +180,7 @@ async def createProd(request: Request, label: str = Form(...), description: str 
     '''
     
     # téléversement du fichier image à partir du répertoire image local au bucket s3
-    S3.s3_client.upload_file(path, S3.bucket_name, images.filename)
+    S3.s3_client.upload_fileobj(images.file, S3.bucket_name, images.filename)
 
     #composition de l'article et enregistrement dans la table Produit
     article = Produit(libelle=label.capitalize(), description=description, prix=price, 
