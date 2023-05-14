@@ -8,9 +8,9 @@ Connexion admin pour back Office /
 Back Office création produit et création promotion /
 Base de données postgres sur alwaysdata /
 
-Point d'entrée application FastApi: start.py sur serveur uvicorn
+Point d'entrée application FastApi: app/start.py sur serveur uvicorn
 
- --> uvicorn start:app
+ --> uvicorn app.start:app
 
 Catalogue: accès public
 Endpoints: "/" Page d'accueil
