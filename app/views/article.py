@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, HTTPException, status, Form, UploadFile, File
 from fastapi.responses import RedirectResponse
 
-from app.models.article import Produit, Admin, Promotion
+from app.models.article import Produit, Admin, Promotion, Categorie
 from app.core.myconfig import templates, S3
 # importe fonction custom de vérification mail et password en bdd
 from app.verify import verifyPasswordMail
@@ -70,15 +70,18 @@ async def root(request: Request):
 
 @articlesViews.get("/articles/", tags=["articles"])
 async def articles_list(request: Request, filter: str = "libelle"):
-    
+    categories = await Categorie.all()
+    libelleCategorie = filter
+
     # afficher les produits selon le filtre sélectionné - par défaut filter="libelle"
     match filter:
 
         case "libelle":
-            # requetes avec jointure sur tables produit et promotion
-            produits = await Produit.all().prefetch_related('promotion').order_by(filter)
+            # requetes avec jointure sur tables produit , promotion et categorie
+            produits = await Produit.all().prefetch_related('promotion','categorie').order_by(filter)
         case _:
-            produits = await Produit.filter(categorie=filter).prefetch_related('promotion')
+            produits = await Produit.filter(categorie=filter).prefetch_related('promotion','categorie')
+            libelleCategorie = await Categorie.filter(id=filter)
         
     image = "https://mercastatic.s3.eu-west-3.amazonaws.com/" 
    
@@ -88,6 +91,8 @@ async def articles_list(request: Request, filter: str = "libelle"):
         {
             "request": request,
             "produits": produits,
+            "categories": categories,
+            "libelleCategorie": libelleCategorie,
             "image": image,
             "filtre": filter
         })

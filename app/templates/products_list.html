@@ -20,26 +20,20 @@
         <select id="sort_by" name="sort_by">
             <option value=" "></option>
             <option value="libelle">-- tous --</option>
-            <option value="informatique">Informatique</option>
-            <option value="papeterie">Papeterie</option>
-            <option value="vetement">Vêtement</option>
-            <option value="maison">Maison</option>
-            <option value="jardin">Jardin</option>
+
+            {% for categorie in categories %}
+            <option value="{{ categorie.id }}">{{ categorie.categorie }}</option>
+
+            {% endfor %}
         </select> 
         <strong><span>>>> CATEGORIE:
-        {% if filtre == 'informatique' %} 
-            Informatique
-        {% elif filtre == 'papeterie' %}
-            Papeterie
-        {% elif filtre == 'vetement' %}
-            Vêtement
-        {% elif filtre == 'maison' %}
-            Maison
-        {% elif filtre == 'jardin' %}
-            Jardin
-        {% else %}
-            Tous les articles
-        {% endif %}
+            {% if libelleCategorie == 'libelle' %}
+               Tous
+            {% else %} 
+               {% for libelle in libelleCategorie %}
+                {{ libelle.categorie }}
+               {% endfor %}
+            {% endif %}
         </span></strong> 
     </form><br/>
 
@@ -49,7 +43,7 @@
         <li class="title"> {{ produit.libelle }} </li>
         <p> {{ produit.description }} - <strong>{{ produit.prix }} euros </strong></p>
         <br />
-        <p> catégorie: {{ produit.categorie }} </p> <br />
+        <p> catégorie: {{ produit.categorie.categorie }} </p> <br />
 
         {% if produit.en_promo == True %}
             <section class="promotion"> 

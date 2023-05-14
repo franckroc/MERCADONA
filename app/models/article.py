@@ -9,9 +9,6 @@ class Promotion(Model):
     date_deb = fields.DateField()
     date_fin = fields.DateField()
 
-    def __str__(self):
-        return self.remise + "\%% du:" + self.date_deb + ' au:' + self.date_fin
-    
 class Produit(Model):
     id = fields.IntField(pk=True, auto_increment=True)
     libelle = fields.CharField(max_length= 50)
@@ -20,10 +17,11 @@ class Produit(Model):
     url_img = fields.CharField(max_length= 50)
     en_promo = fields.BooleanField()
     promotion = fields.ForeignKeyField('models.Promotion', related_name='produits')
-    categorie = fields.CharField(max_length=40)
+    categorie = fields.ForeignKeyField('models.Categorie', related_name='produits')
 
-    def __str__(self):
-        return str(self.en_promo)
+class Categorie(Model):
+    id = fields.IntField(pk=True, auto_increment=True)
+    categorie = fields.CharField(max_length= 30, unique=True)
     
 class Admin(Model):
     id = fields.IntField(pk=True, auto_increment=True)

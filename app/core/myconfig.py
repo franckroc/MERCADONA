@@ -19,8 +19,6 @@ dbname: str = 'franck-r_mercadona'
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-
-
 ############ init ORM tortoise connexion BDD et templates jinja2 ##############
 
 class Settings(BaseSettings):
