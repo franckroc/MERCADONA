@@ -259,3 +259,20 @@ async def createPromo(request: Request, id_produit: int = Form(...), dateD: str 
             "dateF": promotion.date_fin,
             "remise": promotion.remise
         })
+
+@backOffice.get("/prodSelected/{productId}", tags=["backOffice"])
+
+async def prodSelected(productId: int):
+    print("id produit:", productId)
+    try:
+        product = await Produit.get(id=productId)
+        return {
+            "name": product.libelle,
+            "description": product.description,
+            "price": product.prix,
+            "promotion": product.en_promo
+        }
+    except DoesNotExist:
+        return {
+            "name": "Le produit n'existe pas !"
+        }

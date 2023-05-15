@@ -80,12 +80,16 @@
     <!-- formulaire création promotion -->
 
     <div id="form-promo-container" style="display: none;">
-        <form class="create-form" action="/createPromo/" method="post">
+        <form id= "promoForm" class="create-form" action="/createPromo/" method="post">
             <h2>Créer une promotion</h2>
             
             <div>
                 <label for="id_produit">Id produit:</label>
                 <input type="number" id="id_produit" name="id_produit" step="1" min="1" required />
+                <fieldset>
+                    <legend> Produit sélectionné</legend><br />
+                    <div id="prodSelected"></div><br />
+                </fieldset>
             </div>
 
             <div><br />
@@ -97,7 +101,7 @@
                 <input type="date" id="dateF" name="dateF" required />
             </div>
             <div>
-                <label for="remise">Remise:</label>
+                <label for="remise">Taux de remise:</label>
                 <input type="number" id="remise" name="remise" step="1" min="1" required />
             </div>
             <div>
