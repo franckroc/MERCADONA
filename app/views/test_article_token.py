@@ -16,4 +16,3 @@ def test_checkToken_valid():
     result = checkToken(encoded)
     print("Resultat: ", result)
     assert result == True
-
