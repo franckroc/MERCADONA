@@ -9,7 +9,6 @@ def test_verifyPasswordMail_valid():
     false_password= "123"
     hashed_email, hashed_password = hashPasswordEmail(false_email,false_password)
     result = verifyPasswordMail(false_email, false_password, hashed_email, hashed_password)
-    print("Resultat valid ident: ",result)
     assert result == True
 
 def test_verifyPasswordMail_invalidMail():
@@ -20,10 +19,9 @@ def test_verifyPasswordMail_invalidMail():
 
     hashed_email, hashed_password = hashPasswordEmail(false_email,false_password)
 
-    false_email = "myexemple@exemple.fr"
+    false_email = "myexemple@myexemple.fr"
 
     result = verifyPasswordMail(false_email, false_password, hashed_email, hashed_password)
-    print("Resultat invalid email: ",result)
     assert result == False
 
 def test_verifyPasswordMail_invalidPassword():
@@ -37,5 +35,4 @@ def test_verifyPasswordMail_invalidPassword():
     false_password = "124"
 
     result = verifyPasswordMail(false_email, false_password, hashed_email, hashed_password)
-    print("Resultat invalid password: ",result)
     assert result == False

@@ -1,7 +1,6 @@
 from fastapi.testclient import TestClient
 from app.start import app 
 import unittest
-from fastapi import Request
 class TestSomeGet_Endpoints(unittest.TestCase):
 
     def setUp(self):
