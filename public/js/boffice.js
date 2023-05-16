@@ -29,6 +29,8 @@ createPromoLink.addEventListener("click", (event) => {
   displayPromoForm();
 });
 
+// formulaire création promotion
+// caractéristiques du produit sélectionné
 const product = document.getElementById("id_produit").addEventListener("change", function() {
 const productId = document.getElementById("id_produit").value;
 
@@ -37,12 +39,12 @@ fetch(`/prodSelected/${productId}`)
   .then(response => response.json())
   .then(data => {
   var prod = document.getElementById("prodSelected");
-  // affiche les data reçues
-  prod.innerHTML = `<p>Nom du produit : ${data.name}</p>
-                    <p>Description : ${data.description}</p>
-                    <p>Prix initial : ${data.price} euros</p>
-                    <p>Promotion : ${data.promotion}</p>`;
-    })
+  // affiche les datas reçues
+  prod.innerHTML = `<p><strong>Nom du produit :</strong>${data.name}</p> 
+                    <p><strong>Description :</strong> ${data.description}</p> 
+                    <p><strong>Prix initial :</strong> ${data.price} euros</p> 
+                    <p><strong>Promotion :</strong> ${data.promotion}</p>`;
+        })
   .catch(error => {
     console.error("Une erreur s'est produite lors de la récupération des caractéristiques du produit :", error);
     });

@@ -10,10 +10,10 @@ from app.sqli import sql_i_injection
 
 #librairie pour générer et vérifier token
 import jwt  
-
 from decouple import config
+
 # librarie gestion erreur ORM Tortoise
-from tortoise.exceptions import DoesNotExist
+from tortoise.exceptions import DoesNotExist, OperationalError
 
 #####################################################
 ##### class adminLogin pour sauvegarde token ########
@@ -29,6 +29,7 @@ backOffice = APIRouter()     # route privé
 
 ######## fonctions générateur et verification token ########
 
+# variable locale
 key: str = config("JWT_SECRETKEY")
 
 def generateToken(payload: dict) ->str:
@@ -39,7 +40,6 @@ def checkToken(token: str) -> bool:
     try:
         jwt.decode(token, key, algorithms=["HS256"])
         return True
-    
     except (jwt.InvalidKeyError, jwt.InvalidSignatureError, 
             jwt.InvalidTokenError, jwt.InvalidAlgorithmError):
         return False
@@ -73,25 +73,31 @@ async def root(request: Request):
 ########## Template products_list.html ###############
 
 @articlesViews.get("/articles/", tags=["articles"])
-
-# par défaut filter = "libellé" --> tous les articles
+# par défaut filter = "libellé" --> toutes les articles
 async def articles_list(request: Request, filter: str = "libelle"):
 
     # récupération de toutes les catégories en BDD pour liste déroulante
     categories = await Categorie.all()
-    # capture du filtre pour message CATEGORIE
+    # capture du filtre pour message mémoire CATEGORIE
     libelleCategorie = filter
 
-    # afficher les produits selon le filtre sélectionné
+    # afficher les produits selon le filtre sélectionné avec gestion erreur
     match filter:
-
         case "libelle":
-            # requetes avec jointure sur tables produit , promotion et categorie
-            produits = await Produit.all().prefetch_related('promotion', 'categorie')
+            try:
+                # requetes avec jointure sur tables produit , promotion et categorie
+                produits = await Produit.all().prefetch_related('promotion', 'categorie')
+            except OperationalError as e:
+                raise HTTPException(status_code=500, 
+                                    detail="Erreur pour récupérer les articles du catalogue\n"+str(e))
         case _:
-            produits = await Produit.filter(categorie=filter).prefetch_related('promotion', 'categorie')
-            # récupération du nouveau libellé catégorie pour message CATEGORIE
-            libelleCategorie = await Categorie.filter(id=filter)
+            try:
+                produits = await Produit.filter(categorie=filter).prefetch_related('promotion', 'categorie')
+                # récupération du nouveau libellé catégorie pour message mémoire CATEGORIE
+                libelleCategorie = await Categorie.filter(id=filter)
+            except OperationalError as e:
+                raise HTTPException(status_code=500, 
+                                    detail=f"Erreur pour récupérer les articles filtrés sur {filter} du catalogue\n"+str(e))
         
     # les variables produits, categories, filtre et libelleCategorie sont passées au template
     return templates.TemplateResponse(
@@ -116,9 +122,8 @@ async def admin(request: Request):
     return templates.TemplateResponse("form_admin.html", {"request": request})
 
 #################### route POST ###############
-
+    
 @adminConnect.post("/dataForm/", tags=["admin"]) 
-
 # récupération email et password du formulaire
 async def login(email: str = Form(...), password: str = Form(...)):
 
@@ -128,7 +133,11 @@ async def login(email: str = Form(...), password: str = Form(...)):
         nosqli = sql_i_injection(password)
         if nosqli == False:
             # si pas d'injections repérées requete BDD pour récupérér les données admin
-            users = await Admin.all()  #1 haché/salé email puis users = await Admin.get(mail=email_hashed)
+            try:
+                users = await Admin.all()  #1 haché/salé email puis users = await Admin.get(mail=email_hashed)
+            except OperationalError as e:
+                raise HTTPException(status_code=500, 
+                                    detail="Erreur de lecture pour l'administrateur\n"+str(e))    
         else:
             # sinon redirection page d'accueil
             return RedirectResponse(url="/", status_code=status.HTTP_205_RESET_CONTENT)
@@ -190,12 +199,6 @@ async def createProd(request: Request, label: str = Form(...), description: str 
     else:
         promo = False
 
-    '''
-    # téléversement du fichier image dans le dossier de destination local
-    with open(path, "wb") as buffer:
-        buffer.write(await images.read())
-    '''
-
     try:
         # récupération de l'id de la catégorie donnée
         cat = await Categorie.get(categorie=categorie)  #.values('id')
@@ -209,10 +212,14 @@ async def createProd(request: Request, label: str = Form(...), description: str 
     # téléversement du fichier image à partir du répertoire local au bucket s3
     S3.s3_client.upload_fileobj(images.file, S3.bucket_name, images.filename)
 
-    #composition de l'article et enregistrement dans la table avec l'id catégorie
-    article = Produit(libelle=label.capitalize(), description=description, prix=price, 
-                      url_img=images.filename, en_promo=promo, categorie_id=idCat)
-    await article.save()
+    try:
+        #composition de l'article et enregistrement dans la table avec l'id catégorie
+        article = Produit(libelle=label.capitalize(), description=description, prix=price, 
+                          url_img=images.filename, en_promo=promo, categorie_id=idCat)
+        await article.save()
+    except OperationalError as e:
+        raise HTTPException(status_code=500, 
+                            detail="Erreur d'enregistrement du produit\n"+str(e))
 
     return templates.TemplateResponse(
         "article_create.html",
@@ -231,7 +238,6 @@ async def createProd(request: Request, label: str = Form(...), description: str 
 ############### Template: promotion_create.html ##############################
 
 @backOffice.post("/createPromo/", tags=["backOffice"])
-
 # récupération données formulaire création promotion
 async def createPromo(request: Request, id_produit: int = Form(...), dateD: str = Form(...),
                       dateF: str = Form(...), remise: int = Form(...)):
@@ -240,14 +246,22 @@ async def createPromo(request: Request, id_produit: int = Form(...), dateD: str 
     validToken()
 
     # composition de la promotion et enregistrement
-    promotion = Promotion(remise=remise, date_deb=dateD, date_fin=dateF)
-    await promotion.save()
+    try:
+        promotion = Promotion(remise=remise, date_deb=dateD, date_fin=dateF)
+        await promotion.save()
+    except OperationalError as e:
+        raise HTTPException(status_code=500, 
+                            detail="Erreur d'enregistrement de la promotion\n"+str(e))
 
     # mise a jour du produit sélectionné avec la promotion
-    article = await Produit.get(id=id_produit)
-    article.promotion_id = promotion.id
-    article.en_promo = True
-    await article.save()
+    try:
+        article = await Produit.get(id=id_produit)
+        article.promotion_id = promotion.id
+        article.en_promo = True
+        await article.save()
+    except OperationalError as e:
+        raise HTTPException(status_code=500, 
+                            detail="Erreur de mise à jour du produit\n"+str(e))
 
     return templates.TemplateResponse(
         "promotion_create.html",
@@ -260,17 +274,25 @@ async def createPromo(request: Request, id_produit: int = Form(...), dateD: str 
             "remise": promotion.remise
         })
 
-@backOffice.get("/prodSelected/{productId}", tags=["backOffice"])
+##################################################################
+######## route GET prodSelected pour caractéristique produit #####
 
+@backOffice.get("/prodSelected/{productId}", tags=["backOffice"])
 async def prodSelected(productId: int):
-    print("id produit:", productId)
+
     try:
         product = await Produit.get(id=productId)
+        
+        if product.en_promo == True:
+            promo = "Oui" 
+        else:
+            promo = "Non"
+        
         return {
             "name": product.libelle,
             "description": product.description,
             "price": product.prix,
-            "promotion": product.en_promo
+            "promotion": promo
         }
     except DoesNotExist:
         return {
