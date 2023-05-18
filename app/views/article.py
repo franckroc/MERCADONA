@@ -40,8 +40,7 @@ def checkToken(token: str) -> bool:
     try:
         jwt.decode(token, key, algorithms=["HS256"])
         return True
-    except (jwt.InvalidKeyError, jwt.InvalidSignatureError, 
-            jwt.InvalidTokenError, jwt.InvalidAlgorithmError):
+    except (jwt.InvalidKeyError, jwt.InvalidTokenError, jwt.InvalidAlgorithmError):
         return False
 
 def validToken():
