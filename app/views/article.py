@@ -1,52 +1,30 @@
-from fastapi import APIRouter, Request, HTTPException, status, Form, UploadFile, File
-from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, Request, HTTPException, status, Form, UploadFile, File, Depends
+from fastapi.responses import RedirectResponse  #HTMLResponse
 
 from app.models.article import Produit, Admin, Promotion, Categorie
 from app.core.myconfig import templates, S3
+
 # importe fonction custom de vérification mail et password en bdd
 from app.verify import verifyPasswordMail
 # importe fonction custom de prévention SQL injection
 from app.sqli import sql_i_injection
 
-#librairie pour générer et vérifier token
+#librairie pour générer token
 import jwt  
+#librairie pour variables locales
 from decouple import config
 
 # librarie gestion erreur ORM Tortoise
 from tortoise.exceptions import DoesNotExist, OperationalError
+# librairie boto gestion erreurs
+from botocore.exceptions import BotoCoreError, NoCredentialsError
 
-#####################################################
-##### class adminLogin pour sauvegarde token ########
-class adminLogin:
-    admin_token: str = ""
-    
 #####################################################
 
 homePage = APIRouter()       # route public
 articlesViews = APIRouter()  # route public
 adminConnect = APIRouter()   # route public
 backOffice = APIRouter()     # route privé
-
-######## fonctions générateur et verification token ########
-
-# variable locale
-key: str = config("JWT_SECRETKEY")
-
-def generateToken(payload: dict) ->str:
-    encoded = jwt.encode(payload, key, algorithm="HS256")
-    return encoded
-
-def checkToken(token: str) -> bool:
-    try:
-        jwt.decode(token, key, algorithms=["HS256"])
-        return True
-    except (jwt.InvalidKeyError, jwt.InvalidSignatureError, 
-            jwt.InvalidTokenError, jwt.InvalidAlgorithmError):
-        return False
-
-def validToken():
-    if checkToken(adminLogin.admin_token) != True:
-        raise HTTPException(status_code=405, detail="MERCADONA - Accès non autorisé")
 
 #################### type hints ####################
 
@@ -56,15 +34,18 @@ password: str
 user: str
 nosqli: bool
 
+# (local) récupération variable JWT secretKey
+key: str = config("JWT_SECRETKEY")
+
 ######################################################
 ############ route GET / Page d'accueil ##############
 ######## template:  index.html   #####################
 
 @homePage.get("/", tags=["home"])
 async def root(request: Request): 
-
+    
     # efface le token
-    adminLogin.admin_token = ""
+    request.session["token"] = ""
 
     return templates.TemplateResponse("index.html", { "request": request })
 
@@ -73,7 +54,7 @@ async def root(request: Request):
 ########## Template products_list.html ###############
 
 @articlesViews.get("/articles/", tags=["articles"])
-# par défaut filter = "libellé" --> toutes les articles
+# par défaut filter = "libellé" --> tous les articles
 async def articles_list(request: Request, filter: str = "libelle"):
 
     # récupération de toutes les catégories en BDD pour liste déroulante
@@ -125,27 +106,29 @@ async def admin(request: Request):
     
 @adminConnect.post("/dataForm/", tags=["admin"]) 
 # récupération email et password du formulaire
-async def login(email: str = Form(...), password: str = Form(...)):
+async def login(request: Request, email: str = Form(...), password: str = Form(...)):
 
     # verification SQLi sur email et password --> fonction (sqli.py)
     nosqli = sql_i_injection(email)
     if nosqli == False:
         nosqli = sql_i_injection(password)
+
         if nosqli == False:
+
             # si pas d'injections repérées requete BDD pour récupérér les données admin
             try:
-                users = await Admin.all()  #1 haché/salé email puis users = await Admin.get(mail=email_hashed)
+                users = await Admin.all()  ###1 haché/salé email puis users = await Admin.get(mail=email_hashed)
             except OperationalError as e:
                 raise HTTPException(status_code=500, 
                                     detail="Erreur de lecture pour l'administrateur\n"+str(e))    
         else:
             # sinon redirection page d'accueil
-            return RedirectResponse(url="/", status_code=status.HTTP_205_RESET_CONTENT)
+            return RedirectResponse(url="/", status_code=205)
     else:
-        return RedirectResponse(url="/", status_code=status.HTTP_205_RESET_CONTENT)
+        return RedirectResponse(url="/", status_code=205)
 
     # recherche parmi les données admin (1 seul admin)
-    # si plusieurs admin modif #1
+    # si plusieurs admin modif ###1
     for user in users:   
         # fonction (verify.py) verification email et password du formulaire avec BDD
         valid = verifyPasswordMail(email, password, user.mail, user.password)
@@ -154,28 +137,41 @@ async def login(email: str = Form(...), password: str = Form(...)):
         if valid == True:
 
             # génération token d'authentification avec email/password du formulaire
+            # sauvegarde token dans la session et redirection /BOffice
+            # (local) recup variable Secretkey JWT
+            
             payload= {f"{email}":f"{password}"}
-            token = generateToken(payload)
-            # sauvegarde du token dans la classe adminLogin
-            adminLogin.admin_token = token
-            # redirection vers route protégée /BOffice
-            return RedirectResponse(url='/BOffice/', status_code=status.HTTP_303_SEE_OTHER)
+            request.session["token"] = jwt.encode(payload, key, algorithm="HS256")
+            return RedirectResponse(url='/BOffice/', status_code=303)
         
         # sinon retour accueil
         else:
-            return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+            return RedirectResponse(url="/", status_code=303)
 
 ########################################################
 ################# routes BackOffice ####################
 ############ Template: Boffice.html  ###################
 
-########  route GET page d'accueil du Back Office ######
+######### fonction récupération token dans session et gestion erreur ####
+async def get_token(request: Request):
 
+    #récupération token
+    token = request.session.get("token")
+    # si pas de token
+    if not token:
+        raise HTTPException(status_code=401, detail="Accès non autorisé - pas de token !")
+    # sinon essai decodage
+    else:
+        try:
+            jwt.decode(token, key, algorithms=["HS256"])
+            return token
+        except (jwt.DecodeError, jwt.InvalidKeyError, jwt.InvalidTokenError):
+            raise HTTPException(status_code=401, detail="Accès non autorisé - token invalide !")
+
+########  route GET page d'accueil du Back Office ######        
 @backOffice.get("/BOffice/", tags=["backOffice"])
-async def adminBackOffice(request: Request):
-
-    #vérification du token. Si invalide code 405 Accès non autorisé 
-    validToken()
+# Dépendance: token (fonction get_token)
+async def adminBackOffice(request: Request, token: str = Depends(get_token)):
 
     return templates.TemplateResponse( "Boffice.html", { "request": request })
 
@@ -183,16 +179,12 @@ async def adminBackOffice(request: Request):
 ######## Template: article_create.html ##################
 
 @backOffice.post("/createProd/", tags=["backOffice"])
-
-# récupération des données formulaire création produit
-# catégorie est le libellé catégorie
+# récupération des données formulaire création produit / Dépendance: token
 async def createProd(request: Request, label: str = Form(...), description: str = Form(...),
                      price: float = Form(...), promo: str = Form(...), 
-                     images: UploadFile = File(...) , categorie: str = Form(...)):
+                     images: UploadFile = File(...) , categorie: str = Form(...),
+                     token: str = Depends(get_token)):
     
-    # vérification token
-    validToken()
-
     # transforme la valeur str du bouton radio en booléen
     if promo == "on":
         promo = True
@@ -210,7 +202,10 @@ async def createProd(request: Request, label: str = Form(...), description: str 
         idCat = cat.id
 
     # téléversement du fichier image à partir du répertoire local au bucket s3
-    S3.s3_client.upload_fileobj(images.file, S3.bucket_name, images.filename)
+    try:
+        S3.s3_client.upload_fileobj(images.file, S3.bucket_name, images.filename)
+    except (BotoCoreError, NoCredentialsError) as e:
+        return {"erreur": "Impossible de téléverser l'image au Bucket S3: {}".format(str(e))}
 
     try:
         #composition de l'article et enregistrement dans la table avec l'id catégorie
@@ -238,12 +233,10 @@ async def createProd(request: Request, label: str = Form(...), description: str 
 ############### Template: promotion_create.html ##############################
 
 @backOffice.post("/createPromo/", tags=["backOffice"])
-# récupération données formulaire création promotion
+# récupération données formulaire création promotion / Dépendance: token
 async def createPromo(request: Request, id_produit: int = Form(...), dateD: str = Form(...),
-                      dateF: str = Form(...), remise: int = Form(...)):
-
-    # vérification token
-    validToken()
+                      dateF: str = Form(...), remise: int = Form(...),
+                      token: str = Depends(get_token)):
 
     # composition de la promotion et enregistrement
     try:
@@ -280,6 +273,7 @@ async def createPromo(request: Request, id_produit: int = Form(...), dateD: str 
 @backOffice.get("/prodSelected/{productId}", tags=["backOffice"])
 async def prodSelected(productId: int):
 
+    # récupère catactéristiques du produit selon id et renvoi au template
     try:
         product = await Produit.get(id=productId)
         
