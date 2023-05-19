@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, HTTPException, status, Form, UploadFile, File, Depends
+from fastapi import APIRouter, Request, HTTPException, Form, UploadFile, File, Depends
 from fastapi.responses import RedirectResponse  #HTMLResponse
 
 from app.models.article import Produit, Admin, Promotion, Categorie
@@ -26,8 +26,7 @@ articlesViews = APIRouter()  # route public
 adminConnect = APIRouter()   # route public
 backOffice = APIRouter()     # route privé
 
-<<<<<<< HEAD
-######## fonctions générateur et verification token ########
+######## fonctions générateur token ########
 
 # variable locale
 key: str = config("JWT_SECRETKEY")
@@ -36,19 +35,6 @@ def generateToken(payload: dict) ->str:
     encoded = jwt.encode(payload, key, algorithm="HS256")
     return encoded
 
-def checkToken(token: str) -> bool:
-    try:
-        jwt.decode(token, key, algorithms=["HS256"])
-        return True
-    except (jwt.InvalidKeyError, jwt.InvalidTokenError):
-        return False
-
-def validToken():
-    if checkToken(adminLogin.admin_token) != True:
-        raise HTTPException(status_code=405, detail="MERCADONA - Accès non autorisé")
-
-=======
->>>>>>> mercav2
 #################### type hints ####################
 
 valid: bool
@@ -56,9 +42,6 @@ email: str
 password: str
 user: str
 nosqli: bool
-
-# (local) récupération variable JWT secretKey
-key: str = config("JWT_SECRETKEY")
 
 ######################################################
 ############ route GET / Page d'accueil ##############
@@ -137,7 +120,6 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
         nosqli = sql_i_injection(password)
 
         if nosqli == False:
-
             # si pas d'injections repérées requete BDD pour récupérér les données admin
             try:
                 users = await Admin.all()  ###1 haché/salé email puis users = await Admin.get(mail=email_hashed)
@@ -160,9 +142,7 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
         if valid == True:
 
             # génération token d'authentification avec email/password du formulaire
-            # sauvegarde token dans la session et redirection /BOffice
-            # (local) recup variable Secretkey JWT
-            
+            # sauvegarde token dans la session et redirection /BOffice    
             payload= {f"{email}":f"{password}"}
             request.session["token"] = jwt.encode(payload, key, algorithm="HS256")
             return RedirectResponse(url='/BOffice/', status_code=303)
@@ -216,7 +196,7 @@ async def createProd(request: Request, label: str = Form(...), description: str 
 
     try:
         # récupération de l'id de la catégorie donnée
-        cat = await Categorie.get(categorie=categorie)  #.values('id')
+        cat = await Categorie.get(categorie=categorie)
         idCat = cat.id 
     # si nouvelle catégorie - création catégorie et récupération de son id
     except DoesNotExist:
