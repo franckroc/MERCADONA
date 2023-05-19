@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request, HTTPException, Form, UploadFile, File, Depends
-from fastapi.responses import RedirectResponse  #HTMLResponse
+from fastapi.responses import RedirectResponse
 
 from app.models.article import Produit, Admin, Promotion, Categorie
 from app.core.myconfig import templates, S3
@@ -76,7 +76,7 @@ async def articles_list(request: Request, filter: str = "libelle"):
                 produits = await Produit.all().prefetch_related('promotion', 'categorie')
             except OperationalError as e:
                 raise HTTPException(status_code=500, 
-                                    detail="Erreur pour récupérer les articles du catalogue\n"+str(e))
+                                    detail="Erreur pour récupérer les articles du catalogue. " + str(e))
         case _:
             try:
                 produits = await Produit.filter(categorie=filter).prefetch_related('promotion', 'categorie')
@@ -84,7 +84,7 @@ async def articles_list(request: Request, filter: str = "libelle"):
                 libelleCategorie = await Categorie.filter(id=filter)
             except OperationalError as e:
                 raise HTTPException(status_code=500, 
-                                    detail=f"Erreur pour récupérer les articles filtrés sur {filter} du catalogue\n"+str(e))
+                                    detail=f"Erreur pour récupérer les articles filtrés sur {filter} du catalogue. " + str(e))
         
     # les variables produits, categories, filtre et libelleCategorie sont passées au template
     return templates.TemplateResponse(
@@ -125,7 +125,7 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
                 users = await Admin.all()  ###1 haché/salé email puis users = await Admin.get(mail=email_hashed)
             except OperationalError as e:
                 raise HTTPException(status_code=500, 
-                                    detail="Erreur de lecture pour l'administrateur\n"+str(e))    
+                                    detail="Erreur de lecture pour l'administrateur. " + str(e))    
         else:
             # sinon redirection page d'accueil
             return RedirectResponse(url="/", status_code=205)
@@ -217,7 +217,7 @@ async def createProd(request: Request, label: str = Form(...), description: str 
         await article.save()
     except OperationalError as e:
         raise HTTPException(status_code=500, 
-                            detail="Erreur d'enregistrement du produit\n"+str(e))
+                            detail="Erreur d'enregistrement du produit. " + str(e))
 
     return templates.TemplateResponse(
         "article_create.html",
@@ -247,7 +247,7 @@ async def createPromo(request: Request, id_produit: int = Form(...), dateD: str 
         await promotion.save()
     except OperationalError as e:
         raise HTTPException(status_code=500, 
-                            detail="Erreur d'enregistrement de la promotion\n"+str(e))
+                            detail="Erreur d'enregistrement de la promotion. " + str(e))
 
     # mise a jour du produit sélectionné avec la promotion
     try:
@@ -257,7 +257,7 @@ async def createPromo(request: Request, id_produit: int = Form(...), dateD: str 
         await article.save()
     except OperationalError as e:
         raise HTTPException(status_code=500, 
-                            detail="Erreur de mise à jour du produit\n"+str(e))
+                            detail="Erreur de mise à jour du produit. " + str(e))
 
     return templates.TemplateResponse(
         "promotion_create.html",
