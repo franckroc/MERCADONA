@@ -4,12 +4,14 @@ from fastapi.staticfiles import StaticFiles
 from tortoise.contrib.fastapi import register_tortoise
 from app.views.article import articlesViews, backOffice, homePage, adminConnect
 from app.core.myconfig import settings
+from starlette.middleware.sessions import SessionMiddleware
 
 # création instance fastAPI
 app = FastAPI(title="Mercadona 1.0")
 
 # création de la route public vers fichiers statiques CSS/JS/
 app.mount("/public", StaticFiles(directory=settings.STATIC_FILES_DIR), name="public")   
+app.add_middleware(SessionMiddleware, secret_key="your-secret-key")
 
 register_tortoise(
     app,
