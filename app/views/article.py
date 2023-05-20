@@ -26,12 +26,6 @@ articlesViews = APIRouter()  # route public
 adminConnect = APIRouter()   # route public
 backOffice = APIRouter()     # route privé
 
-###### fonctions générateur token ########
-
-def generateToken(payload: dict) ->str:
-    encoded = jwt.encode(payload, key_JWT, algorithm="HS256")
-    return encoded
-
 ######### fonction récupération et vérification token dans session et gestion erreur ####
 async def get_verify_token(request: Request):
 
