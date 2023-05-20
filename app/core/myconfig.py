@@ -35,3 +35,6 @@ class Settings(BaseSettings):
 settings = Settings()
 
 templates = Jinja2Templates(directory=settings.TEMPLATES_DIR)
+
+class secretKeyMiddleware:
+    key_MDLW: str = config("SECRET_MIDDLEWARE")
