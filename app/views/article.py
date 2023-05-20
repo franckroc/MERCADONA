@@ -26,6 +26,11 @@ articlesViews = APIRouter()  # route public
 adminConnect = APIRouter()   # route public
 backOffice = APIRouter()     # route privé
 
+###### fonctions générateur token ########
+
+def generateToken(payload: dict) ->str:
+    return jwt.encode(payload, key_JWT, algorithm="HS256")
+
 ######### fonction récupération et vérification token dans session et gestion erreur ####
 async def get_verify_token(request: Request):
 
@@ -150,7 +155,7 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
             # génération token d'authentification avec email/password du formulaire
             # sauvegarde token dans la session et redirection /BOffice    
             payload= {f"{email}":f"{password}"}
-            request.session["token"] = jwt.encode(payload, key_JWT, algorithm="HS256")
+            request.session["token"] = generateToken(payload)
             return RedirectResponse(url='/BOffice/', status_code=303)
         # sinon retour accueil
         else:
