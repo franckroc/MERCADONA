@@ -32,9 +32,21 @@ def generateToken(payload: dict) ->str:
     encoded = jwt.encode(payload, key_JWT, algorithm="HS256")
     return encoded
 
+######### fonction récupération et vérification token dans session et gestion erreur ####
+async def get_verify_token(request: Request):
 
-
-
+    #récupération token
+    token = request.session.get("token")
+    # si pas de token
+    if not token:
+        raise HTTPException(status_code=401, detail="Accès non autorisé - pas de token !")
+    # sinon essai decodage
+    else:
+        try:
+            jwt.decode(token, key_JWT, algorithms=["HS256"])
+            return token
+        except (jwt.DecodeError, jwt.InvalidKeyError, jwt.InvalidTokenError):
+            raise HTTPException(status_code=401, detail="Accès non autorisé - token invalide !")
 
 #################### type hints ####################
 
@@ -43,7 +55,7 @@ nosqli: bool
 payload: dict
 idCat: int  #related function creteProd (route /createProd)
 token: str  #related function get_token_verify
-key_JWT: str = config("JWT_SECRETKEY")
+key_JWT: str = config("JWT_SECRETKEY")  # (local)
 
 ######################################################
 ############ route GET / Page d'accueil ##############
