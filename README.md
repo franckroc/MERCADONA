@@ -11,10 +11,10 @@ Description:
 Catalogue publique de produit en retails avec remise ou sans /
 Application d'un filtre de tri par categories/
 Back Office admin/
-    injection dépendance token
-    création produit et création promotion
-    enregistrement des données en BDD et téléversement des images sur S3 Bucket
-    mise à jour des filtes catégories si création nouvelle catégorie
+    - injection dépendance token
+    - création produit et création promotion
+    - enregistrement des données en BDD et téléversement des images sur S3 Bucket
+    - mise à jour des filtes catégories si création nouvelle catégorie
 
 Point d'entrée application FastApi: app/start.py sur serveur uvicorn
 
