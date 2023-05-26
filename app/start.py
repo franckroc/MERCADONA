@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from tortoise.contrib.fastapi import register_tortoise
-from app.views.article import articlesViews, backOffice, homePage, adminConnect
+from app.views.article import articlesViews, backOffice, homePage, adminConnect, exportPDF
 from app.core.myconfig import settings, secretKeyMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -26,3 +26,4 @@ app.include_router(homePage)
 app.include_router(articlesViews)
 app.include_router(backOffice)    
 app.include_router(adminConnect)
+app.include_router(exportPDF)

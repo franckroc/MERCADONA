@@ -8,6 +8,7 @@ class S3:
     # bucket s3 amazon
     s3_client = boto3.client('s3')
     bucket_name:str = config("S3_BUCKET_NAME")
+    bucket_pdf = config("S3_BUCKET_PDF")
 
 #chargement des variables locales pour connexion BDD
 db_password: str = config("DB_PASSWORD")

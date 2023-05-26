@@ -49,3 +49,17 @@ fetch(`/prodSelected/${productId}`)
     console.error("Une erreur s'est produite lors de la récupération des caractéristiques du produit :", error);
     });
 });
+
+// fonction exportation PDF
+const pdfExportation = document.getElementById("btnExport");
+pdfExportation.addEventListener("click", async() => {
+  await fetch("/export-pdf")
+    .then(response => response.json())
+    .then(response => {
+      var respPDF = document.getElementById("responseExportPDF")
+      respPDF.innerHTML = `<strong>${response.PDF}</strong>`
+      })
+    .catch(error => {
+      console.error("Une erreur est survenue lors de la création du PDF: ",error);
+      });
+}); 

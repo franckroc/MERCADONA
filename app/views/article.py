@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Request, HTTPException, Form, UploadFile, File, Depends
-from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, Request, HTTPException, Form, UploadFile, File, Depends, Response
+from fastapi.responses import RedirectResponse, FileResponse
 
 from app.models.article import Produit, Admin, Promotion, Categorie
 from app.core.myconfig import templates, S3
@@ -18,6 +18,12 @@ from decouple import config
 from tortoise.exceptions import DoesNotExist, OperationalError
 # librairie boto gestion erreurs
 from botocore.exceptions import BotoCoreError, NoCredentialsError
+# librairie pour création PDF
+from borb.pdf import Document, Page, SingleColumnLayout, Paragraph, PDF, PageLayout, Image
+from decimal import Decimal
+# librairie pour dater pdf
+from datetime import date
+from io import BytesIO
 
 #####################################################
 
@@ -25,6 +31,7 @@ homePage = APIRouter()       # route public
 articlesViews = APIRouter()  # route public
 adminConnect = APIRouter()   # route public
 backOffice = APIRouter()     # route privé
+exportPDF = APIRouter()  
 
 ###### fonctions générateur token ########
 
@@ -284,3 +291,78 @@ async def prodSelected(productId: int):
         }
     except DoesNotExist:
         return {"name": "Le produit n'existe pas !"}
+    
+##################################################################
+####### route GET fonction Exportation en PDF ####################
+############# injection dépendance (get_verify_token)  ###########
+
+
+@exportPDF.get("/export-pdf")
+async def export_pdf():
+    #recupère les produits
+    produits = await Produit.all().prefetch_related('promotion')
+
+    #crée un PDF
+    pdf: Document = Document()
+    
+    # itère sur les produits
+    for produit in produits:
+
+        #ajoute une page au pdf
+        page: Page = Page()
+        pdf.add_page(page)
+
+        #compose les paragraphes du pdf
+        produitLibellePrice = f"Libellé: {produit.libelle} Prix initial: {produit.prix} euros"
+        produitId = f"ID: {produit.id}"
+        produitDescription = f"Description: {produit.description}"
+
+        if (produit.en_promo == True):
+            promo = produit.promotion
+            produitSolde = round(produit.prix - (produit.prix*promo.remise)/100, 2)
+            produitPromotion = f"Promotion du: {promo.date_deb} au: {promo.date_fin} au taux de: {promo.remise} %"
+        else:
+            produitPromotion = "Le produit n'est pas soldé."
+            produitSolde = ""
+        
+        layout: PageLayout = SingleColumnLayout(page)
+
+        layout.add(Paragraph(f"{produitLibellePrice}", font="Helvetica-bold"))
+        layout.add(Paragraph(f"{produitId}"))
+        layout.add(Paragraph(f"{produitDescription}"))
+        layout.add(Paragraph(f"{produitPromotion}"))
+        layout.add(Paragraph(f"{produitSolde} euros"))
+        layout.add(Image(f"https://{S3.bucket_name}.s3.eu-west-3.amazonaws.com/{produit.url_img}",
+                         width=Decimal(128),
+                         height=Decimal(128)
+                         ))
+
+    # date du jour au format FR
+    today = date.today()
+    todayFormat = today.strftime("%d-%m-%Y")
+
+    # téléversement du pdf au bucket s3 PDF
+    try:
+        # appel fonction de convertion
+        doc_bytes: bytes = PDF_to_Bytes(pdf)
+        #composition du filename PDF
+        filenamePDF = f"mercadonaPDF_{todayFormat}.pdf"
+
+        S3.s3_client.upload_fileobj(BytesIO(doc_bytes), S3.bucket_pdf, filenamePDF)
+    except (BotoCoreError, NoCredentialsError) as e:
+        raise HTTPException(status_code=500, 
+                            detail="Erreur lors de la création du PDF. " + str(e)) 
+    #composition du path S3 du PDF
+    path_PDF = f"https://mercastatic-pdf.s3.amazonaws.com/{filenamePDF}"
+    return {"PDF": f"Le PDF {filenamePDF} est crée avec succès --> {path_PDF}"}
+    
+# fonction de convertion du document en bytes
+def PDF_to_Bytes(pdf: Document) ->bytes :
+    # Création d'un objet BytesIO en mémoire pour stocker le contenu PDF
+    pdf_buffer = BytesIO()
+    # Écriture du contenu PDF dans l'objet BytesIO
+    PDF.dumps(pdf_buffer, pdf)
+    # Réinitialisation de la position du curseur dans le buffer
+    pdf_buffer.seek(0)
+
+    return pdf_buffer.getvalue()
