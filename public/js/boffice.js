@@ -63,9 +63,10 @@ pdfExportation.addEventListener("click", async() => {
 
       setTimeout(function() {
          respPath.style.display = 'none';
+         respPDF.style.display = 'none';
       }, 10000);
       })
-      
+
     .catch(error => {
       console.error("Une erreur est survenue lors de la création du PDF: ",error);
       });
