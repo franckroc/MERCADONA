@@ -24,11 +24,16 @@
 	font-size: 24px;
   }
   
-  header span {
+  .responseExportPDF {
     font-size: 18px;
     color: black;
     padding-left: 1rem;
   }
+  
+  .pathPDF {
+    color: yellow;
+  }
+
    header span:hover {
     background-color: #106fce;
    }
