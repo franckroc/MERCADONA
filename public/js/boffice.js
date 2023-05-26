@@ -57,7 +57,9 @@ pdfExportation.addEventListener("click", async() => {
     .then(response => response.json())
     .then(response => {
       var respPDF = document.getElementById("responseExportPDF")
+      var respPath = document.getElementById("pathPDF")
       respPDF.innerHTML = `<strong>${response.PDF}</strong>`
+      respPath.innerHTML = `<a href="${response.PATH}"`
       })
     .catch(error => {
       console.error("Une erreur est survenue lors de la création du PDF: ",error);

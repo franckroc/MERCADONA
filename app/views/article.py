@@ -354,7 +354,8 @@ async def export_pdf():
                             detail="Erreur lors de la création du PDF. " + str(e)) 
     #composition du path S3 du PDF
     path_PDF = f"https://mercastatic-pdf.s3.amazonaws.com/{filenamePDF}"
-    return {"PDF": f"Le PDF {filenamePDF} est crée avec succès --> {path_PDF}"}
+    return {"PDF": f"Le PDF {filenamePDF} est crée avec succès: ",
+            "PATH": f"{path_PDF}"}
     
 # fonction de convertion du document en bytes
 def PDF_to_Bytes(pdf: Document) ->bytes :
