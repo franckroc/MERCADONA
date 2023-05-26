@@ -24,13 +24,13 @@
 	font-size: 24px;
   }
   
-  .responseExportPDF {
+  header .responseExportPDF {
     font-size: 18px;
     color: black;
     padding-left: 1rem;
   }
-  
-  .pathPDF {
+
+  header .pathPDF {
     color: yellow;
   }
 
