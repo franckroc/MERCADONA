@@ -65,6 +65,7 @@ pdfExportation.addEventListener("click", async() => {
       respPDF.innerHTML = `<strong>${response.PDF}</strong>`;
       respPath.innerHTML = `<a href="${response.PATH}" target="_blank" style="color: yellow;">Télécharger ici</a>`;
 
+        // efface les messages après 10 s
       setTimeout(function() {
          respPath.style.display = 'none';
          respPDF.style.display = 'none';
