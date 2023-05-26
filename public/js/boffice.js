@@ -53,13 +53,17 @@ fetch(`/prodSelected/${productId}`)
 // fonction exportation PDF
 const pdfExportation = document.getElementById("btnExport");
 pdfExportation.addEventListener("click", async() => {
+  var waitingMsg = document.getElementById("waitMsg");
+  waitingMsg.innerHTML = "Waiting ..."
+
   await fetch("/export-pdf")
     .then(response => response.json())
     .then(response => {
-      var respPDF = document.getElementById("responseExportPDF")
-      var respPath = document.getElementById("pathPDF")
-      respPDF.innerHTML = `<strong>${response.PDF}</strong>`
-      respPath.innerHTML = `<a href="${response.PATH}" target="_blank" style="color: yellow;">Télécharger ici</a>`
+      var respPDF = document.getElementById("responseExportPDF");
+      var respPath = document.getElementById("pathPDF");
+      waitingMsg.style.display = 'none';
+      respPDF.innerHTML = `<strong>${response.PDF}</strong>`;
+      respPath.innerHTML = `<a href="${response.PATH}" target="_blank" style="color: yellow;">Télécharger ici</a>`;
 
       setTimeout(function() {
          respPath.style.display = 'none';
