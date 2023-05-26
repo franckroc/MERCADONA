@@ -24,19 +24,11 @@
 	font-size: 24px;
   }
   
-  header .responseExportPDF {
+  header span {
     font-size: 18px;
     color: black;
     padding-left: 1rem;
   }
-
-  header .pathPDF {
-    color: yellow;
-  }
-
-   header span:hover {
-    background-color: #106fce;
-   }
 
   .logout {
     margin-left: auto;
@@ -76,6 +68,10 @@
   aside ul li a:hover {
 	background-color: #08c;
 	color: white;
+  }
+
+  aside button:hover {
+    background-color: #106fce;
   }
   
   /* Form */
