@@ -60,7 +60,12 @@ pdfExportation.addEventListener("click", async() => {
       var respPath = document.getElementById("pathPDF")
       respPDF.innerHTML = `<strong>${response.PDF}</strong>`
       respPath.innerHTML = `<a href="${response.PATH}" target="_blank" style="color: yellow;">Télécharger ici</a>`
+
+      setTimeout(function() {
+         respPath.style.display = 'none';
+      }, 10000);
       })
+      
     .catch(error => {
       console.error("Une erreur est survenue lors de la création du PDF: ",error);
       });
