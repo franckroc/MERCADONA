@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Request, HTTPException, Form, UploadFile, File, Depends, Response
-from fastapi.responses import RedirectResponse, FileResponse
+from fastapi import APIRouter, Request, HTTPException, Form, UploadFile, File, Depends
+from fastapi.responses import RedirectResponse
 
 from app.models.article import Produit, Admin, Promotion, Categorie
 from app.core.myconfig import templates, S3
@@ -19,7 +19,9 @@ from tortoise.exceptions import DoesNotExist, OperationalError
 # librairie boto gestion erreurs
 from botocore.exceptions import BotoCoreError, NoCredentialsError
 # librairie pour création PDF
-from borb.pdf import Document, Page, SingleColumnLayout, Paragraph, PDF, PageLayout, Image
+from borb.pdf import Document, Page, SingleColumnLayout, Paragraph, \
+     PDF, PageLayout, Image, Alignment
+
 from decimal import Decimal
 # librairie pour dater pdf
 from datetime import date
@@ -36,6 +38,7 @@ exportPDF = APIRouter()
 ###### fonctions générateur token ########
 
 def generateToken(payload: dict) ->str:
+    
     return jwt.encode(payload, key_JWT, algorithm="HS256")
 
 ######### fonction récupération et vérification token dans session et gestion erreur ####
@@ -296,50 +299,47 @@ async def prodSelected(productId: int):
 ####### route GET fonction Exportation en PDF ####################
 ############# injection dépendance (get_verify_token)  ###########
 
-
-@exportPDF.get("/export-pdf")
+@exportPDF.get("/export-pdf", dependencies=[Depends(get_verify_token)], tags=["backOffice"])
 async def export_pdf():
     #recupère les produits
     produits = await Produit.all().prefetch_related('promotion')
-
-    #crée un PDF
-    pdf: Document = Document()
-    
-    # itère sur les produits
-    for produit in produits:
-
-        #ajoute une page au pdf
-        page: Page = Page()
-        pdf.add_page(page)
-
-        #compose les paragraphes du pdf
-        produitLibellePrice = f"Libellé: {produit.libelle} Prix initial: {produit.prix} euros"
-        produitId = f"ID: {produit.id}"
-        produitDescription = f"Description: {produit.description}"
-
-        if (produit.en_promo == True):
-            promo = produit.promotion
-            produitSolde = round(produit.prix - (produit.prix*promo.remise)/100, 2)
-            produitPromotion = f"Promotion du: {promo.date_deb} au: {promo.date_fin} au taux de: {promo.remise} %"
-        else:
-            produitPromotion = "Le produit n'est pas soldé."
-            produitSolde = ""
-        
-        layout: PageLayout = SingleColumnLayout(page)
-
-        layout.add(Paragraph(f"{produitLibellePrice}", font="Helvetica-bold"))
-        layout.add(Paragraph(f"{produitId}"))
-        layout.add(Paragraph(f"{produitDescription}"))
-        layout.add(Paragraph(f"{produitPromotion}"))
-        layout.add(Paragraph(f"{produitSolde} euros"))
-        layout.add(Image(f"https://{S3.bucket_name}.s3.eu-west-3.amazonaws.com/{produit.url_img}",
-                         width=Decimal(128),
-                         height=Decimal(128)
-                         ))
-
+    #calcul le nombre de page du pdf
+    nbrprod = round(len(produits)/3)
     # date du jour au format FR
     today = date.today()
     todayFormat = today.strftime("%d-%m-%Y")
+    #crée un PDF
+    pdf: Document = Document()
+    layout, a = generate_new_page(pdf)
+    #crée une entete
+    layout.add(Paragraph(f"CATALOGUE MERCADONA du {todayFormat} - PAGE: {a} / {nbrprod}"))
+    layout.add(Paragraph(""))
+    # itère sur les produits
+    for produit in produits:
+        #ajoute une page au pdf tous les 3 produits avec nouveau layout et entete
+        if a%4 == 0:
+            layout, a = generate_new_page(pdf)
+
+        #compose les paragraphes du pdf
+        if (produit.en_promo == True):
+            promo = produit.promotion
+            produitSolde = str(round(produit.prix - (produit.prix*promo.remise)/100, 2)) + " euros"
+            produitPromotion = f"{promo.date_deb} / {promo.date_fin} / taux: {promo.remise} %"
+        else:
+            produitPromotion = "---" 
+            produitSolde = "---"
+
+        layout.add(Paragraph(f"ID Produit: {produit.id}", font_size=Decimal(9) ))
+        layout.add(Paragraph(f"Libellé: {produit.libelle} Prix initial: {produit.prix} euros", font_size=Decimal(9)))
+        layout.add(Paragraph(f"Description: {produit.description}", font_size=Decimal(9) ))
+        layout.add(Paragraph(f"Promotion: {produitPromotion}", font_size=Decimal(9) ))
+        layout.add(Paragraph(f"Prix soldé: {produitSolde}", font_size=Decimal(9) ))
+        layout.add(Image(f"https://{S3.bucket_name}.s3.eu-west-3.amazonaws.com/{produit.url_img}",
+                            width=Decimal(60),
+                            height=Decimal(60)
+              ))  
+        layout.add(Paragraph("_"*65))
+        a+=1
 
     # téléversement du pdf au bucket s3 PDF
     try:
@@ -347,14 +347,12 @@ async def export_pdf():
         doc_bytes: bytes = PDF_to_Bytes(pdf)
         #composition du filename PDF
         filenamePDF = f"mercadonaPDF_{todayFormat}.pdf"
-
         S3.s3_client.upload_fileobj(BytesIO(doc_bytes), S3.bucket_pdf, filenamePDF)
     except (BotoCoreError, NoCredentialsError) as e:
-        raise HTTPException(status_code=500, 
-                            detail="Erreur lors de la création du PDF. " + str(e)) 
+        return {"erreur": "Impossible de téléverser le PDF au Bucket S3: {}".format(str(e))} 
     #composition du path S3 du PDF
     path_PDF = f"https://mercastatic-pdf.s3.amazonaws.com/{filenamePDF}"
-    return {"PDF": f"Le PDF {filenamePDF} est crée avec succès: ",
+    return {"PDF": f"Le PDF {filenamePDF} est crée avec succès -->",
             "PATH": f"{path_PDF}"}
     
 # fonction de convertion du document en bytes
@@ -367,3 +365,13 @@ def PDF_to_Bytes(pdf: Document) ->bytes :
     pdf_buffer.seek(0)
 
     return pdf_buffer.getvalue()
+
+def generate_new_page(pdf):
+    #compteur de produits réinitialisé a 1 tous les 3 produits
+    a = 1
+    page: Page = Page()
+    pdf.add_page(page)
+    layout: PageLayout = SingleColumnLayout(page,
+                                            horizontal_margin= Decimal(15),
+                                            vertical_margin=Decimal(30))
+    return layout, a
