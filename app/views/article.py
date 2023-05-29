@@ -26,6 +26,10 @@ from decimal import Decimal
 # librairie pour dater pdf
 from datetime import date
 from io import BytesIO
+from time import time
+
+# librairie multiprocessing pour optimiser temps d'execution sauvegarde S3
+from multiprocessing import Process
 
 #####################################################
 
@@ -314,7 +318,10 @@ async def export_pdf():
     #crée une entete
     layout.add(Paragraph(f"CATALOGUE MERCADONA du {todayFormat} - PAGE: {a} / {nbrprod}"))
     layout.add(Paragraph(""))
+
     # itère sur les produits
+    start = time()
+
     for produit in produits:
         #ajoute une page au pdf tous les 3 produits avec nouveau layout et entete
         if a%4 == 0:
@@ -341,20 +348,34 @@ async def export_pdf():
         layout.add(Paragraph("_"*65))
         a+=1
 
-    # téléversement du pdf au bucket s3 PDF
-    try:
-        # appel fonction de convertion
-        doc_bytes: bytes = PDF_to_Bytes(pdf)
-        #composition du filename PDF
-        filenamePDF = f"mercadonaPDF_{todayFormat}.pdf"
-        S3.s3_client.upload_fileobj(BytesIO(doc_bytes), S3.bucket_pdf, filenamePDF)
-    except (BotoCoreError, NoCredentialsError) as e:
-        return {"erreur": "Impossible de téléverser le PDF au Bucket S3: {}".format(str(e))} 
+    end = time()
+    print("temps boucle:", end - start)
+    start = end = 0
+
+    # appel fonction de convertion
+    doc_bytes: bytes = PDF_to_Bytes(pdf)
+    #composition du filename PDF
+    filenamePDF = f"mercadonaPDF_{todayFormat}.pdf"
+
+    start = time()
+    # téléversement du pdf au bucket s3 PDF en multiprocess
+    p = Process(target=upload_pdf_multiprocess, args=(doc_bytes, filenamePDF,))
+    p.start()
+    p.join()
+    end = time()
+    print("temps S3: ", end-start)
+
     #composition du path S3 du PDF
-    path_PDF = f"https://mercastatic-pdf.s3.amazonaws.com/{filenamePDF}"
+    path_PDF = f"https://mercapdf.s3.eu-west-3.amazonaws.com/{filenamePDF}"
     return {"PDF": f"Le PDF {filenamePDF} est crée avec succès -->",
             "PATH": f"{path_PDF}"}
-    
+
+def upload_pdf_multiprocess(doc_bytes, filenamePDF):
+    try:
+        S3.s3_client.upload_fileobj(BytesIO(doc_bytes), S3.bucket_pdf, filenamePDF)
+    except (BotoCoreError, NoCredentialsError) as e:
+        return {"erreur": "Impossible de téléverser le PDF au Bucket S3: {}".format(str(e))}
+
 # fonction de convertion du document en bytes
 def PDF_to_Bytes(pdf: Document) ->bytes :
     # Création d'un objet BytesIO en mémoire pour stocker le contenu PDF

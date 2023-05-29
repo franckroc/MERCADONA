@@ -5,7 +5,7 @@ from app.start import app
 client = TestClient(app)
 
 def test_bytesToPDF():
-    path_PDF = f"https://mercastatic-pdf.s3.amazonaws.com/mercadonaPDF_26-05-2023.pdf"
+    path_PDF = f"https://mercapdf.s3.eu-west-3.amazonaws.com/mercadonaPDF_29-05-2023.pdf"
     value = PDF_to_Bytes(path_PDF)
     assert type(value) == bytes
     assert len(b'value') > 0
