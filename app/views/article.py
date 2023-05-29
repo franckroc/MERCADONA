@@ -27,6 +27,7 @@ from decimal import Decimal
 from datetime import date
 from io import BytesIO
 
+from time import time
 #####################################################
 
 homePage = APIRouter()       # route public
@@ -352,6 +353,7 @@ async def export_pdf():
         return {"erreur": "Impossible de téléverser le PDF au Bucket S3: {}".format(str(e))} 
     #composition du path S3 du PDF
     path_PDF = f"https://mercastatic-pdf.s3.amazonaws.com/{filenamePDF}"
+
     return {"PDF": f"Le PDF {filenamePDF} est crée avec succès -->",
             "PATH": f"{path_PDF}"}
     
@@ -374,4 +376,5 @@ def generate_new_page(pdf):
     layout: PageLayout = SingleColumnLayout(page,
                                             horizontal_margin= Decimal(15),
                                             vertical_margin=Decimal(30))
+    
     return layout, a
