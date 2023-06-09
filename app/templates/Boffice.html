@@ -27,12 +27,16 @@
             <h2>Produits</h2>
             <ul>
                 <li><a href="#" id="linkCreateProd">Créer</a></li>
+                <li><a href="#" id="linkUpdateProd">Modifier</a></li>
+                <li><a href="#" id="linkDeleteProd">Supprimer</a></li>
             </ul>
         </li>
         <li>
             <h2>Promotions</h2>
             <ul>
                 <li><a href="#" id="linkCreatePromo">Créer</a></li>
+                <li><a href="#" id="linkUpdatePromo">Modifier</a></li>
+                <li><a href="#" id="linkDeletePromo">Supprimer</a></li>
             </ul>
         </li>
         <button id="btnExport" class="favorite styled">Exporter en PDF</button> <br /><br />
@@ -51,35 +55,42 @@
                 <label for="label">Libellé:</label>
                 <input type="text" id="label" name="label" required>
             </div>
+
             <div>
                 <label for="description">Description:</label>
                 <textarea id="description" name="description" required></textarea>
             </div>
+
             <div>
                 <label for="price">Prix:</label>
                 <input type="number" id="price" name="price" step="0.1" required />
             </div>
+
             <div>
-                <label for="images">Images:</label>
+                <label for="images">Image:</label>
                 <input type="file" id="images" name="images" 
 								   accept="image/png, image/jpeg, image/webp" required>
             </div>
+
 			<fieldset>
-				<legend> Produit en promotion </legend>
-            <div><br />
+				<legend> Produit en promotion </legend><br />
+            <div class="radio-container">
 				<input type="radio" id="promoOn" name="promo" value="on">
-                <label for="promo">Oui</label>
-				<input type="radio" id="promoOff" name="promo" value="off" checked>
-                <label for="promo">Non</label>
+                <label for="promoOn">Oui</label>
+				<input type="radio" id="promoOff" name="promo" value="off">
+                <label for="promoOff">Non</label>
             </div>
 			</fieldset><br />
+
               <div>
                 <label for="categorie">Libéllé catégorie:</label>
                 <input type="text" id="categorie" name="categorie" required />
             </div>
+
             <div>
                 <button type="submit" id="submit-btn">Envoyer</button>
             </div>
+
         </form>
     </div>
 
@@ -87,7 +98,7 @@
 
     <div id="form-promo-container" style="display: none;">
         <form id= "promoForm" class="create-form" action="/createPromo/" method="post">
-            <h2>Créer une promotion</h2>
+            <h2>Créer une promotion</h2><br />
             
             <div>
                 <label for="id_produit">Id produit:</label>
@@ -102,21 +113,78 @@
                 <label for="dateD">Date de début:</label>
                 <input type="date" id="dateD" name="dateD" required />
             </div>
+
             <div>
                 <label for="dateF">Date de fin:</label>
                 <input type="date" id="dateF" name="dateF" required />
             </div>
+
             <div>
                 <label for="remise">Taux de remise:</label>
                 <input type="number" id="remise" name="remise" step="1" min="1" required />
             </div>
+
             <div>
                 <button type="submit" id="submit-btn">Envoyer</button>
             </div>
+
         </form>
     </div>
-</main>
 
+    <!-- formulaire Mise à jour produit -->
+
+    <div id="form-updateProd-container" style="display: none;">
+    <form id="prodUpdate" class="create-form" action="/updateProd/" method="post">
+        <h2>Modification d'un produit</h2><br />
+
+        <div>
+            <label for="id_prodUpdate">Id produit:</label>
+            <input type="number" id="id_prodUpdate" name="id_prodUpdate" step="1" min="1" required />
+        </div>
+
+        <div>
+            <label for="libelleUpdate">Libellé:</label>
+            <input id="libelleUpdate" name="libelleUpdate" rows="1" />
+        </div>
+
+        <div>
+            <label for="descriptionUpdate">Description:</label>
+            <textarea id="descriptionUpdate" name="descriptionUpdate" rows="2"></textarea>
+        </div>
+
+        <div>
+            <label for="prixUpdate">Prix initial:</label>
+            <input id="prixUpdate" name="prixUpdate" rows="1" />
+        </div>
+
+        <fieldset>
+            <legend> Produit en promotion: </legend><br />
+        <div class="radio-container">
+            <input type="radio" id="promoOnUpdate" name="promoUpdate" value="on" />
+            <label for="promoOnUpdate">Oui</label>
+            <input type="radio" id="promoOffUpdate" name="promoUpdate" value="off" />
+            <label for="promoOffUpdate">Non</label>
+        </div>
+        </fieldset><br />
+
+        <div>
+            <label for="categorieUpdate">Catégorie:</label>
+            <input id="categorieUpdate" name="categorieUpdate" rows="1" />
+        </div>
+
+        <div>
+            <label for="imageUpdate">Image:</label>
+            <input type="file" id="imageUpdate" name="imageUpdate" 
+                               accept="image/png, image/jpeg, image/webp">
+        </div>
+
+        <div>
+            <button type="submit" id="submit-btn">Envoyer</button>
+        </div>
+    </form>
+    </div>
+
+</main>
 <script src="{{ url_for('public', path='js/boffice.js') }} "></script>
 </body>
 </html>

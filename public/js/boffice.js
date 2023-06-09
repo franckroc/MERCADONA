@@ -5,20 +5,35 @@ const createProductForm = document.querySelector("#form-prod-container");
 const createPromoLink = document.querySelector("#linkCreatePromo");
 const createPromoForm = document.querySelector("#form-promo-container");
 
+const updateProdLink = document.querySelector("#linkUpdateProd");
+const updateProductForm = document.querySelector("#form-updateProd-container");
+
+
 // Afficher/masquer les formulaires
+function displayUpdateProdForm() {
+  createPromoForm.style.display = "none";
+  createProductForm.style.display = "none";
+  updateProductForm.style.display =
+    updateProductForm.style.display === "none" ? "block" : "none";
+}
+
 function displayProductForm() {
   createPromoForm.style.display = "none";
+  updateProductForm.style.display = "none";
   createProductForm.style.display =
     createProductForm.style.display === "none" ? "block" : "none";
 }
 
 function displayPromoForm() {
   createProductForm.style.display = "none";
+  updateProductForm.style.display = "none";
   createPromoForm.style.display =
-  createPromoForm.style.display === "none" ? "block" : "none";
+    createPromoForm.style.display === "none" ? "block" : "none";
 }
 
 // Ajout d'un écouteur d'événements sur les liens "Créer Produit" et "créer promo"
+// et "modifier prod"
+
 createProductLink.addEventListener("click", (event) => {
   event.preventDefault();
   displayProductForm();
@@ -28,6 +43,45 @@ createPromoLink.addEventListener("click", (event) => {
   event.preventDefault();
   displayPromoForm();
 });
+
+updateProdLink.addEventListener("click", (event) => {
+  event.preventDefault();
+  displayUpdateProdForm();
+});
+
+// formulaire modification produit
+const productUpdate = document.getElementById("id_prodUpdate").addEventListener("change", function() {
+  const prodIdUpdate = document.getElementById("id_prodUpdate").value;
+  fetch(`/prodUpdate/${prodIdUpdate}`)
+    .then(response => response.json())
+    .then(data => {
+      const labelUpdate = document.getElementById("libelleUpdate");
+      const descriptUpdate = document.getElementById("descriptionUpdate");
+      const priceUpdate = document.getElementById("prixUpdate");
+      const promoInPromo = document.getElementById("promoOnUpdate");
+      const promoNotPromo = document.getElementById("promoOffUpdate");
+      const catUpdate = document.getElementById("categorieUpdate");
+
+      labelUpdate.value = `${data.libelle}`;
+      descriptUpdate.value = `${data.description}`;
+      priceUpdate.value = `${data.prix}`;
+
+      if (data.en_promo === true ) {
+        console.log("true");
+        promoInPromo.checked = true;
+        promoNotPromo.checked = false;
+      } else {
+        promoNotPromo.checked = true;
+        promoInPromo.checked = false;
+
+      }
+      catUpdate.value = `${data.categorie}`;
+    })
+    .catch(error => {
+      console.error("Une erreur s'est produite lors de la récupération des caractéristiques du produit :", error);
+    });
+});
+
 
 // formulaire création promotion
 // caractéristiques du produit sélectionné

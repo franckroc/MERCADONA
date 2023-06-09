@@ -20,7 +20,7 @@ from tortoise.exceptions import DoesNotExist, OperationalError
 from botocore.exceptions import BotoCoreError, NoCredentialsError
 # librairie pour création PDF
 from borb.pdf import Document, Page, SingleColumnLayout, Paragraph, \
-     PDF, PageLayout, Image, Alignment
+     PDF, PageLayout, Image
 
 from decimal import Decimal
 # librairie pour dater pdf
@@ -299,6 +299,25 @@ async def prodSelected(productId: int):
     except DoesNotExist:
         return {"name": "Le produit n'existe pas !"}
     
+###################################################################
+############## route GET pour Mise à jour produit #################
+############## injection dépendance (get_verify_token) ############
+
+@backOffice.get("/prodUpdate/{prodIdUpdate}", dependencies=[Depends(get_verify_token)], tags=["backOffice"])
+async def updateProd(prodIdUpdate: int):
+    try:
+        product = await Produit.get(id=prodIdUpdate).prefetch_related('categorie')
+        categorie = product.categorie.categorie
+        return {
+            "libelle": product.libelle,
+            "description": product.description,
+            "prix": product.prix,
+            "en_promo": product.en_promo,
+            "categorie": categorie
+        }
+    except DoesNotExist:
+        return {"libelle":"Le produit n'existe pas"}
+
 ##################################################################
 ####### route GET fonction Exportation en PDF ####################
 ############# injection dépendance (get_verify_token)  ###########

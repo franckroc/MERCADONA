@@ -77,13 +77,13 @@
   /* Form */
   .create-form {
 	background-color: rgb(255, 255, 255);
-	border: 1px solid #ccc;
+	border: 1px solid #000000;
 	margin: 10px auto;
 	padding: 10px;
 	width: 70%;
-	max-width: 600px;
+	max-width: 550px;
 	position: fixed;
-	top: 20%;
+	top: 15%;
 	left: 35%;
   }
 
@@ -91,9 +91,16 @@
 	text-align: center;
   }
   
+  .create-form .radio-container {
+    display: flex;
+    flex-direction: row;
+    width: 10rem;
+    
+  }
+
   .create-form label {
 	display: flex;
-	margin-bottom: 10px;
+	margin-bottom: 7px;
   }
   
   .create-form input,
@@ -107,10 +114,6 @@
 	border-radius: 5px;
   }
 
-  .create-form input[type="radio"] {
-	float: right;
-  }
-  
   .create-form p {
 	margin-top: 10px;
   }
