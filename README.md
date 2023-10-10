@@ -30,3 +30,4 @@ Back Office: accès privés
 Endpoints: [...]
 
 déploiement Heroku: https://merca-franck-rochette.herokuapp.com/
+## déploiement stoppé ##
